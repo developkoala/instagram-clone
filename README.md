@@ -70,20 +70,6 @@ npm run dev
 npm run create-sample-data
 ```
 
-생성되는 테스트 계정:
-- john@example.com / password123 (팔로워 많음)
-- jane@example.com / password123
-- mike@example.com / password123
-- sarah@example.com / password123
-- test@example.com / password123
-
-채팅 테스트 계정:
-- coding@gmail.com / password123
-- coder@gmail.com / password123
-
-관리자 계정:
-- admin / pass123 (관리자 페이지: /admin)
-
 ### 또는 직접 계정 생성
 1. http://localhost:5173/register 에서 새 계정 생성
 2. 생성한 계정으로 로그인
