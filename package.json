@@ -1,0 +1,24 @@
+{
+  "name": "instagram-clone",
+  "version": "1.0.0",
+  "description": "Instagram Clone Project",
+  "scripts": {
+    "predev": "node setup_auto.js",
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "backend": "node backend/run_backend.js",
+    "frontend": "cd frontend && npm run dev",
+    "setup": "node setup_auto.js",
+    "create-sample-data": "node backend/create_sample_data_wrapper.js"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": [
+    "instagram",
+    "clone",
+    "react",
+    "fastapi"
+  ],
+  "author": "",
+  "license": "MIT"
+}
