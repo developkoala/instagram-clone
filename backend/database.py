@@ -77,10 +77,11 @@ def init_database():
     # 4. likes 테이블 생성
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS likes (
+            id TEXT PRIMARY KEY,
             user_id TEXT NOT NULL,
             post_id TEXT NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (user_id, post_id),
+            UNIQUE(user_id, post_id),
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
             FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
         )
@@ -90,10 +91,11 @@ def init_database():
     # 5. follows 테이블 생성
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS follows (
+            id TEXT PRIMARY KEY,
             follower_id TEXT NOT NULL,
             following_id TEXT NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (follower_id, following_id),
+            UNIQUE(follower_id, following_id),
             FOREIGN KEY (follower_id) REFERENCES users(id) ON DELETE CASCADE,
             FOREIGN KEY (following_id) REFERENCES users(id) ON DELETE CASCADE
         )
