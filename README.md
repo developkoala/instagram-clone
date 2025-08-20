@@ -2,6 +2,8 @@
 
 Muksta 클론 프로젝트입니다. React, TypeScript, Tailwind CSS (프론트엔드)와 FastAPI, SQLAlchemy (백엔드)를 사용하여 구현했습니다.
 
+[![Deploy Status](https://github.com/developkoala/instagram-clone/actions/workflows/deploy.yml/badge.svg)](https://github.com/developkoala/instagram-clone/actions)
+
 ## 프로젝트 구조
 
 ```
