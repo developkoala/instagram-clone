@@ -98,7 +98,10 @@ def get_db_connection() -> DatabaseConnection:
         # SQLite connection
         import sqlite3
         db_path = db_url.replace('sqlite:///', '')
-        conn = sqlite3.connect(db_path)
+        conn = sqlite3.connect(db_path, check_same_thread=False)
+        # WAL 모드 활성화 (동시성 향상)
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA busy_timeout=5000")  # 5초 대기
         return SQLiteConnection(conn)
     
     elif db_url.startswith('postgresql'):

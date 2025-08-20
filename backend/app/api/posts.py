@@ -412,12 +412,22 @@ async def like_post(
             detail="Already liked this post"
         )
     
-    # 좋아요 추가
-    query = "INSERT INTO likes (user_id, post_id) VALUES (%s, %s)"
-    execute_query(query, (
-        current_user['id'],
-        post_id
-    ))
+    # 좋아요 추가 (중복 시 무시)
+    try:
+        query = "INSERT INTO likes (user_id, post_id) VALUES (%s, %s)"
+        execute_query(query, (
+            current_user['id'],
+            post_id
+        ))
+    except Exception as e:
+        # SQLite의 경우 IntegrityError, PostgreSQL의 경우 다른 에러일 수 있음
+        error_message = str(e).lower()
+        if 'unique' in error_message or 'duplicate' in error_message or 'constraint' in error_message:
+            # 이미 좋아요한 경우 - 무시하고 진행
+            pass
+        else:
+            # 다른 에러는 다시 발생
+            raise
     
     # 좋아요 수 조회
     likes_count = execute_query(
