@@ -106,7 +106,15 @@ jobs:
               fi
           fi
           
-          # 5. PM2 프로세스 재시작
+          # 5. Nginx 설정 업데이트 (있는 경우)
+          if [ -f "$PROJECT_DIR/nginx.conf" ]; then
+              log_info "🔧 Nginx 설정 업데이트 중..."
+              sudo cp $PROJECT_DIR/nginx.conf /etc/nginx/sites-available/muksta
+              sudo nginx -t && sudo systemctl reload nginx
+              log_success "Nginx 설정 업데이트 완료"
+          fi
+          
+          # 6. PM2 프로세스 재시작
           log_info "♻️ 서비스 재시작 중..."
           cd $PROJECT_DIR
           
@@ -120,11 +128,7 @@ jobs:
               
               # Backend 시작
               cd $PROJECT_DIR/backend
-              pm2 start "uvicorn app.main:app --host 0.0.0.0 --port 8000" --name muksta-backend
-              
-              # Frontend 시작 (개발서버 대신 nginx 사용 권장)
-              cd $PROJECT_DIR/frontend
-              pm2 start "npm run preview -- --port 3000" --name muksta-frontend
+              pm2 start "uvicorn app.main:app --host 127.0.0.1 --port 8000" --name muksta-backend
               
               pm2 save
               log_success "PM2 프로세스 시작 완료"
