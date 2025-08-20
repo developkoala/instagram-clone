@@ -12,20 +12,28 @@ from app.api import auth, users, posts, public, notifications, websocket, messag
 from app.api import admin
 from app.api import cmt as comments
 
-# FastAPI 앱 생성
+# Import settings
+from app.config import get_settings
+
+settings = get_settings()
+
+# FastAPI 앱 생성 - 프로덕션에서는 문서 비활성화
 app = FastAPI(
     title="Instagram Clone API",
     description="Instagram 클론 백엔드 API",
-    version="1.0.0"
+    version="1.0.0",
+    docs_url="/docs" if settings.show_docs else None,
+    redoc_url="/redoc" if settings.show_docs else None,
+    openapi_url="/openapi.json" if settings.show_docs else None
 )
 
-# CORS 설정
+# CORS 설정 - 환경에 따라 자동 설정
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:5174", "http://localhost:3000"],  # React 개발 서버
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=settings.cors_origins,
+    allow_credentials=settings.cors_allow_credentials,
+    allow_methods=settings.cors_allow_methods,
+    allow_headers=settings.cors_allow_headers,
 )
 
 # 정적 파일 서빙 (업로드된 이미지)

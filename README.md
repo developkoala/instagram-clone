@@ -86,12 +86,60 @@ npm run create-sample-data
 
 ### 백엔드
 - FastAPI
-- SQLAlchemy
-- SQLite (개발) / PostgreSQL (프로덕션 권장)
+- SQLAlchemy (ORM 모델)
+- Raw SQL (쿼리 실행)
+- SQLite (개발) / PostgreSQL (프로덕션)
+- Alembic (데이터베이스 마이그레이션)
 - JWT 인증
 - Pydantic
 - WebSocket (실시간 통신)
 - Uvicorn (ASGI 서버)
+
+## 데이터베이스 마이그레이션 (Alembic)
+
+### 환경별 자동 감지
+- `.env` 파일의 `DATABASE_URL`에 따라 자동으로 SQLite 또는 PostgreSQL 사용
+- 로컬 개발: `sqlite:///./instagram_clone.db`
+- 프로덕션: `postgresql://user:password@host/dbname`
+
+### 마이그레이션 명령어
+
+```bash
+# 새 마이그레이션 생성
+cd backend
+./venv/bin/alembic revision --autogenerate -m "설명"
+
+# 마이그레이션 적용
+./venv/bin/alembic upgrade head
+
+# 마이그레이션 되돌리기
+./venv/bin/alembic downgrade -1
+
+# 현재 상태 확인
+./venv/bin/alembic current
+
+# 마이그레이션 히스토리
+./venv/bin/alembic history
+```
+
+### 새로운 환경 설정
+1. PostgreSQL 사용 시:
+   ```bash
+   # .env 파일 수정
+   DATABASE_URL=postgresql://username:password@localhost/dbname
+   
+   # 데이터베이스 생성 후 마이그레이션 실행
+   ./venv/bin/alembic upgrade head
+   ```
+
+2. SQLite 사용 시 (기본):
+   ```bash
+   # .env 파일 (또는 기본값 사용)
+   DATABASE_URL=sqlite:///./instagram_clone.db
+   
+   # 마이그레이션 실행
+   ./venv/bin/alembic upgrade head
+   ```
 
 ## 개발 가이드
 

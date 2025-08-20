@@ -342,12 +342,10 @@ async def follow_user(user_id: str, current_user: dict = Depends(get_current_use
         )
     
     # 팔로우 추가
-    query = "INSERT INTO follows (id, follower_id, following_id, created_at) VALUES (%s, %s, %s, %s)"
+    query = "INSERT INTO follows (follower_id, following_id) VALUES (%s, %s)"
     execute_query(query, (
-        generate_uuid(),
         current_user['id'],
-        user_id,
-        datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+        user_id
     ))
     
     return {
