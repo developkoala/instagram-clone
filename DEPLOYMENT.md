@@ -1,12 +1,99 @@
-# Instagram Clone - 배포 가이드
+# 🚀 Instagram Clone - 자동 배포 가이드
 
-## 목차
-1. [로컬 개발 환경](#로컬-개발-환경)
-2. [프로덕션 배포](#프로덕션-배포)
-3. [Docker 배포](#docker-배포)
-4. [환경 변수 설정](#환경-변수-설정)
-5. [데이터베이스 마이그레이션](#데이터베이스-마이그레이션)
-6. [모니터링 및 로깅](#모니터링-및-로깅)
+## 📋 목차
+1. [자동 환경 감지 시스템](#자동-환경-감지-시스템)
+2. [서버 자동 배포](#서버-자동-배포)
+3. [로컬 개발 환경](#로컬-개발-환경)
+4. [프로덕션 배포](#프로덕션-배포)
+5. [환경 변수 설정](#환경-변수-설정)
+6. [데이터베이스 마이그레이션](#데이터베이스-마이그레이션)
+7. [모니터링 및 로깅](#모니터링-및-로깅)
+
+---
+
+## 자동 환경 감지 시스템
+
+### ✨ 핵심 기능
+이 프로젝트는 **환경을 자동으로 감지**하여 설정을 적용합니다:
+
+| 환경 | DATABASE | DEBUG | CORS | LOG | API Docs |
+|------|----------|-------|------|-----|----------|
+| **development** | SQLite | ✅ | 모든 localhost | DEBUG | ✅ |
+| **staging** | PostgreSQL | ❌ | 특정 도메인 | INFO | ✅ |
+| **production** | PostgreSQL | ❌ | 프로덕션 도메인 | WARNING | ❌ |
+
+### 🔧 환경 설정 방법
+```bash
+# .env 파일에서 설정
+ENVIRONMENT=production  # development, staging, production
+```
+
+## 서버 자동 배포
+
+### 🚀 빠른 배포 (서버에서 실행)
+```bash
+# 1. 최신 코드 가져오기
+git pull origin main
+
+# 2. 자동 배포 스크립트 실행
+./deploy.sh
+
+# ✅ 완료! 환경이 자동으로 감지되고 설정됩니다.
+```
+
+### 📝 deploy.sh 스크립트 생성
+```bash
+#!/bin/bash
+# deploy.sh - 서버에 이 파일을 생성하세요
+
+echo "🚀 Instagram Clone 자동 배포 시작..."
+
+# 색상 정의
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# 프로젝트 경로
+PROJECT_DIR="/path/to/instagram-clone"
+cd $PROJECT_DIR
+
+# 1. Git Pull
+echo -e "${YELLOW}📥 최신 코드 가져오는 중...${NC}"
+git pull origin main
+
+# 2. Backend 업데이트
+echo -e "${YELLOW}🔧 Backend 업데이트 중...${NC}"
+cd backend
+source venv/bin/activate
+pip install -r requirements.txt
+
+# 3. 데이터베이스 마이그레이션
+echo -e "${YELLOW}🗄️ 데이터베이스 마이그레이션...${NC}"
+alembic upgrade head
+
+# 4. Frontend 빌드
+echo -e "${YELLOW}🏗️ Frontend 빌드 중...${NC}"
+cd ../frontend
+npm install
+npm run build
+
+# 5. 서비스 재시작
+echo -e "${YELLOW}♻️ 서비스 재시작 중...${NC}"
+sudo systemctl restart instagram-backend
+sudo systemctl reload nginx
+
+echo -e "${GREEN}✅ 배포 완료!${NC}"
+echo -e "${GREEN}🎉 서버가 자동으로 production 환경으로 실행됩니다.${NC}"
+```
+
+### 🔐 서버 환경 변수 설정
+```bash
+# backend/.env (프로덕션)
+ENVIRONMENT=production
+DATABASE_URL=postgresql://user:password@localhost/instagram_db
+SECRET_KEY=your-production-secret-key
+# 기타 설정...
+```
 
 ---
 
