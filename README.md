@@ -4,7 +4,7 @@ Muksta 클론 프로젝트입니다. React, TypeScript, Tailwind CSS (프론트�
 
 [![Deploy Status](https://github.com/developkoala/instagram-clone/actions/workflows/deploy.yml/badge.svg)](https://github.com/developkoala/instagram-clone/actions)
 
-## 프로젝트 구조
+## 🏗️ 프로젝트 구조
 
 ```
 muksta/
@@ -16,7 +16,7 @@ muksta/
 └── guide.md         # 전체 프로젝트 가이드
 ```
 
-## 시작하기
+## 🚀 시작하기
 
 ### 프로젝트 실행
 
