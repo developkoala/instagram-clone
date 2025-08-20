@@ -136,7 +136,7 @@ const Profile: React.FC = () => {
           해당 링크가 잘못되었거나 페이지가 삭제되었을 수 있습니다.
         </p>
         <Link to="/" className="text-instagram-accent mt-4 inline-block">
-          Instagram으로 돌아가기
+          Muksta으로 돌아가기
         </Link>
       </div>
     );

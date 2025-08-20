@@ -1,5 +1,5 @@
 """
-Instagram Clone - FastAPI Backend
+Muksta Clone - FastAPI Backend
 """
 
 from fastapi import FastAPI
@@ -19,8 +19,8 @@ settings = get_settings()
 
 # FastAPI 앱 생성 - 프로덕션에서는 문서 비활성화
 app = FastAPI(
-    title="Instagram Clone API",
-    description="Instagram 클론 백엔드 API",
+    title="Muksta Clone API",
+    description="Muksta 클론 백엔드 API",
     version="1.0.0",
     docs_url="/docs" if settings.show_docs else None,
     redoc_url="/redoc" if settings.show_docs else None,
@@ -56,7 +56,7 @@ app.include_router(admin.router)
 async def root():
     """루트 엔드포인트"""
     return {
-        "message": "Instagram Clone API",
+        "message": "Muksta Clone API",
         "version": "1.0.0",
         "docs": "/docs"
     }

@@ -1,4 +1,4 @@
-# 🚀 Instagram Clone - 자동 배포 가이드
+# 🚀 Muksta Clone - 자동 배포 가이드
 
 ## 📋 목차
 1. [자동 환경 감지 시스템](#자동-환경-감지-시스템)
@@ -46,7 +46,7 @@ git pull origin main
 #!/bin/bash
 # deploy.sh - 서버에 이 파일을 생성하세요
 
-echo "🚀 Instagram Clone 자동 배포 시작..."
+echo "🚀 Muksta Clone 자동 배포 시작..."
 
 # 색상 정의
 GREEN='\033[0;32m'
@@ -54,7 +54,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # 프로젝트 경로
-PROJECT_DIR="/path/to/instagram-clone"
+PROJECT_DIR="/path/to/muksta-clone"
 cd $PROJECT_DIR
 
 # 1. Git Pull
@@ -79,7 +79,7 @@ npm run build
 
 # 5. 서비스 재시작
 echo -e "${YELLOW}♻️ 서비스 재시작 중...${NC}"
-sudo systemctl restart instagram-backend
+sudo systemctl restart muksta-backend
 sudo systemctl reload nginx
 
 echo -e "${GREEN}✅ 배포 완료!${NC}"
@@ -158,7 +158,7 @@ npm run build
 server {
     listen 80;
     server_name your-domain.com;
-    root /var/www/instagram-clone/dist;
+    root /var/www/muksta-clone/dist;
     index index.html;
 
     location / {
@@ -184,7 +184,7 @@ server {
     }
 
     location /uploads {
-        alias /var/www/instagram-clone/backend/uploads;
+        alias /var/www/muksta-clone/backend/uploads;
         expires 30d;
         add_header Cache-Control "public, immutable";
     }
@@ -195,18 +195,18 @@ server {
 
 #### Systemd 서비스 설정
 ```ini
-# /etc/systemd/system/instagram-backend.service
+# /etc/systemd/system/muksta-backend.service
 [Unit]
-Description=Instagram Clone Backend
+Description=Muksta Clone Backend
 After=network.target
 
 [Service]
 Type=exec
 User=www-data
 Group=www-data
-WorkingDirectory=/var/www/instagram-clone/backend
-Environment="PATH=/var/www/instagram-clone/backend/venv/bin"
-ExecStart=/var/www/instagram-clone/backend/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
+WorkingDirectory=/var/www/muksta-clone/backend
+Environment="PATH=/var/www/muksta-clone/backend/venv/bin"
+ExecStart=/var/www/muksta-clone/backend/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
 
 [Install]
 WantedBy=multi-user.target
@@ -215,8 +215,8 @@ WantedBy=multi-user.target
 #### 서비스 시작
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable instagram-backend
-sudo systemctl start instagram-backend
+sudo systemctl enable muksta-backend
+sudo systemctl start muksta-backend
 ```
 
 ---
@@ -258,7 +258,7 @@ services:
       - JWT_SECRET=${JWT_SECRET}
     volumes:
       - ./backend/uploads:/app/uploads
-      - ./backend/instagram_clone.db:/app/instagram_clone.db
+      - ./backend/muksta_clone.db:/app/muksta_clone.db
 
   redis:
     image: redis:alpine
@@ -306,7 +306,7 @@ docker-compose up -d
 ### Backend (.env)
 ```env
 # 데이터베이스
-DATABASE_URL=sqlite:///./instagram_clone.db
+DATABASE_URL=sqlite:///./muksta_clone.db
 # PostgreSQL 사용 시:
 # DATABASE_URL=postgresql://user:password@localhost/instagram_db
 
@@ -341,7 +341,7 @@ VITE_WS_URL=ws://localhost:8000
 ### SQLite → PostgreSQL
 ```bash
 # 1. 데이터 백업
-sqlite3 instagram_clone.db .dump > backup.sql
+sqlite3 muksta_clone.db .dump > backup.sql
 
 # 2. PostgreSQL 데이터베이스 생성
 createdb instagram_db
@@ -353,7 +353,7 @@ python migrate_to_postgres.py backup.sql
 ### 데이터베이스 백업
 ```bash
 # SQLite
-sqlite3 instagram_clone.db ".backup backup.db"
+sqlite3 muksta_clone.db ".backup backup.db"
 
 # PostgreSQL
 pg_dump instagram_db > backup.sql

@@ -1,11 +1,11 @@
-# Instagram Clone
+# Muksta Clone
 
-Instagram 클론 프로젝트입니다. React, TypeScript, Tailwind CSS (프론트엔드)와 FastAPI, SQLAlchemy (백엔드)를 사용하여 구현했습니다.
+Muksta 클론 프로젝트입니다. React, TypeScript, Tailwind CSS (프론트엔드)와 FastAPI, SQLAlchemy (백엔드)를 사용하여 구현했습니다.
 
 ## 프로젝트 구조
 
 ```
-my_instagram/
+muksta/
 ├── frontend/          # React + TypeScript 프론트엔드
 ├── backend/           # FastAPI 백엔드
 ├── front.md          # 프론트엔드 명세서

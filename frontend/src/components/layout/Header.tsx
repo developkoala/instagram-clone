@@ -99,7 +99,7 @@ const Header: React.FC = () => {
         <div className="flex items-center justify-between h-14">
           {/* Logo */}
           <Link to="/" className="text-2xl font-semibold">
-            Instagram
+            Muksta
           </Link>
 
           {/* Search Bar - Desktop */}

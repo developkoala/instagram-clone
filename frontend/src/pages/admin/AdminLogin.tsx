@@ -51,7 +51,7 @@ const AdminLogin: React.FC = () => {
             관리자 로그인
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Instagram Clone 관리자 페이지
+            Muksta Clone 관리자 페이지
           </p>
         </div>
         

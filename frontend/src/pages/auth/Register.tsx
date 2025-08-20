@@ -77,7 +77,7 @@ const Register: React.FC = () => {
         {/* Register Form */}
         <div className="bg-white border border-instagram-border rounded-sm p-10">
           <h1 className="text-4xl font-light text-center mb-4" style={{ fontFamily: 'Billabong' }}>
-            Instagram
+            Muksta
           </h1>
 
           <p className="text-center text-instagram-gray font-semibold mb-6">
@@ -151,7 +151,7 @@ const Register: React.FC = () => {
           </form>
 
           <p className="text-xs text-center text-instagram-gray mt-6">
-            가입하면 Instagram의 약관, 데이터 정책 및 쿠키 정책에 동의하게 됩니다.
+            가입하면 Muksta의 약관, 데이터 정책 및 쿠키 정책에 동의하게 됩니다.
           </p>
         </div>
 

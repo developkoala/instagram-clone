@@ -46,7 +46,7 @@ jobs:
           
           # 배포 시작
           echo "========================================="
-          echo "🚀 Instagram Clone Auto Deployment"
+          echo "🚀 Muksta Clone Auto Deployment"
           echo "========================================="
           log_info "배포 시작: $(date '+%Y-%m-%d %H:%M:%S')"
           
@@ -111,7 +111,7 @@ jobs:
           cd $PROJECT_DIR
           
           # PM2 프로세스 확인 및 재시작
-          if pm2 list | grep -q "instagram"; then
+          if pm2 list | grep -q "muksta"; then
               pm2 restart all --update-env
               log_success "PM2 프로세스 재시작 완료"
           else
@@ -120,11 +120,11 @@ jobs:
               
               # Backend 시작
               cd $PROJECT_DIR/backend
-              pm2 start "uvicorn app.main:app --host 0.0.0.0 --port 8000" --name instagram-backend
+              pm2 start "uvicorn app.main:app --host 0.0.0.0 --port 8000" --name muksta-backend
               
               # Frontend 시작 (개발서버 대신 nginx 사용 권장)
               cd $PROJECT_DIR/frontend
-              pm2 start "npm run preview -- --port 3000" --name instagram-frontend
+              pm2 start "npm run preview -- --port 3000" --name muksta-frontend
               
               pm2 save
               log_success "PM2 프로세스 시작 완료"

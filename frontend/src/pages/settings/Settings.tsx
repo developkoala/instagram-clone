@@ -224,7 +224,7 @@ const Settings: React.FC = () => {
 
           {/* Mobile Account Info */}
           <div className="px-4 pb-8 text-center text-sm text-gray-500">
-            <p>Instagram Clone</p>
+            <p>Muksta Clone</p>
             <p className="mt-1">버전 1.0.0</p>
           </div>
         </div>
@@ -452,7 +452,7 @@ const Settings: React.FC = () => {
                       
                       <div>
                         <h3 className="font-semibold text-lg mb-4">안전 센터</h3>
-                        <p className="text-gray-600">Instagram을 안전하게 사용하는 방법에 대해 알아보세요.</p>
+                        <p className="text-gray-600">Muksta을 안전하게 사용하는 방법에 대해 알아보세요.</p>
                       </div>
                     </div>
                   </div>
@@ -464,13 +464,13 @@ const Settings: React.FC = () => {
                     <h2 className="text-2xl font-semibold mb-8">정보</h2>
                     <div className="space-y-8">
                       <div className="text-center mb-8">
-                        <h1 className="text-3xl font-bold mb-2">Instagram Clone</h1>
+                        <h1 className="text-3xl font-bold mb-2">Muksta Clone</h1>
                         <p className="text-gray-500">버전 1.0.0</p>
                       </div>
                       
                       <div>
                         <h3 className="font-semibold text-lg mb-4">앱 정보</h3>
-                        <p className="text-gray-600">이 앱은 학습 목적으로 만들어진 Instagram 클론입니다.</p>
+                        <p className="text-gray-600">이 앱은 학습 목적으로 만들어진 Muksta 클론입니다.</p>
                         <p className="text-gray-600 mt-2">React, TypeScript, FastAPI를 사용하여 개발되었습니다.</p>
                       </div>
                       
@@ -733,7 +733,7 @@ const Settings: React.FC = () => {
                 
                 <div>
                   <h4 className="font-semibold mb-2">안전 센터</h4>
-                  <p className="text-sm text-gray-600">Instagram을 안전하게 사용하는 방법에 대해 알아보세요.</p>
+                  <p className="text-sm text-gray-600">Muksta을 안전하게 사용하는 방법에 대해 알아보세요.</p>
                 </div>
               </div>
             </div>
@@ -759,14 +759,14 @@ const Settings: React.FC = () => {
             </div>
             <div className="p-6">
               <div className="text-center mb-6">
-                <h1 className="text-2xl font-bold mb-2">Instagram Clone</h1>
+                <h1 className="text-2xl font-bold mb-2">Muksta Clone</h1>
                 <p className="text-gray-500">버전 1.0.0</p>
               </div>
               
               <div className="space-y-4 text-sm">
                 <div className="border-b pb-4">
                   <h4 className="font-semibold mb-2">앱 정보</h4>
-                  <p className="text-gray-600">이 앱은 학습 목적으로 만들어진 Instagram 클론입니다.</p>
+                  <p className="text-gray-600">이 앱은 학습 목적으로 만들어진 Muksta 클론입니다.</p>
                   <p className="text-gray-600 mt-2">React, TypeScript, FastAPI를 사용하여 개발되었습니다.</p>
                 </div>
                 

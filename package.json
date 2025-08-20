@@ -1,7 +1,7 @@
 {
-  "name": "instagram-clone",
+  "name": "muksta-clone",
   "version": "1.0.0",
-  "description": "Instagram Clone Project",
+  "description": "Muksta Clone Project",
   "scripts": {
     "predev": "node setup_auto.js",
     "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
@@ -14,7 +14,7 @@
     "concurrently": "^8.2.2"
   },
   "keywords": [
-    "instagram",
+    "muksta",
     "clone",
     "react",
     "fastapi"

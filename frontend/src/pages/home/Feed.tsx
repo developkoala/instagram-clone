@@ -175,7 +175,7 @@ const Feed: React.FC = () => {
             isAuthenticated ? (
               <>
                 <div className="bg-white border border-instagram-border rounded-lg p-8 text-center">
-                  <h2 className="text-2xl font-light mb-2">Instagram에 오신 것을 환영합니다</h2>
+                  <h2 className="text-2xl font-light mb-2">Muksta에 오신 것을 환영합니다</h2>
                   <p className="text-instagram-gray mb-4">
                     사람들을 팔로우하면 그들이 게시한 사진과 동영상을 여기서 볼 수 있습니다.
                   </p>
@@ -437,7 +437,7 @@ const Feed: React.FC = () => {
             <span>·</span>
             <a href="#" className="hover:underline">개인정보처리방침</a>
           </div>
-          <p className="uppercase">© 2025 Instagram Clone</p>
+          <p className="uppercase">© 2025 Muksta Clone</p>
         </div>
       </footer>
     </div>
