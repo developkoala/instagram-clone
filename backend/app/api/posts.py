@@ -413,12 +413,10 @@ async def like_post(
         )
     
     # 좋아요 추가
-    query = "INSERT INTO likes (id, user_id, post_id, created_at) VALUES (%s, %s, %s, %s)"
+    query = "INSERT INTO likes (user_id, post_id) VALUES (%s, %s)"
     execute_query(query, (
-        generate_uuid(),
         current_user['id'],
-        post_id,
-        datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+        post_id
     ))
     
     # 좋아요 수 조회
