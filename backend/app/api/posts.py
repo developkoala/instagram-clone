@@ -65,8 +65,8 @@ async def get_feed(
         images = execute_query(images_query, (post['id'],))
         
         # 좋아요/저장 여부 (로그인한 경우에만)
-        is_liked = is_post_liked(current_user['id'], post['id']) if current_user else False
-        is_saved = is_post_saved(current_user['id'], post['id']) if current_user else False
+        is_liked = is_post_liked(post['id'], current_user['id']) if current_user else False
+        is_saved = is_post_saved(post['id'], current_user['id']) if current_user else False
         
         result.append({
             "id": post['id'],
@@ -188,7 +188,7 @@ async def get_saved_posts(
             "images": [{"image_url": image['image_url']}] if image else [],
             "caption": post['caption'],
             "likes_count": post['likes_count'],
-            "is_liked": is_post_liked(current_user['id'], post['id']),
+            "is_liked": is_post_liked(post['id'], current_user['id']),
             "is_saved": True
         })
     
@@ -208,7 +208,7 @@ async def get_post_detail(
     current_user: dict = Depends(get_current_user)
 ):
     """게시물 상세 조회"""
-    post = get_post_with_details(post_id, current_user['id'])
+    post = get_post_with_details(post_id)
     
     if not post:
         raise HTTPException(
@@ -234,7 +234,7 @@ async def get_post_detail(
         "caption": post['caption'],
         "location": post['location'],
         "likes_count": post['likes_count'],
-        "is_liked": post['is_liked'],
+        "is_liked": is_post_liked(post_id, current_user['id']),
         "created_at": format_datetime(post['created_at'])
     }
 
@@ -406,7 +406,7 @@ async def like_post(
         )
     
     # 이미 좋아요했는지 확인
-    if is_post_liked(current_user['id'], post_id):
+    if is_post_liked(post_id, current_user['id']):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Already liked this post"
@@ -471,7 +471,7 @@ async def unlike_post(
 ):
     """게시물 좋아요 취소"""
     # 좋아요 확인
-    if not is_post_liked(current_user['id'], post_id):
+    if not is_post_liked(post_id, current_user['id']):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Not liked this post"
@@ -512,7 +512,7 @@ async def save_post(
         )
     
     # 이미 저장했는지 확인
-    if is_post_saved(current_user['id'], post_id):
+    if is_post_saved(post_id, current_user['id']):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Already saved this post"
@@ -539,7 +539,7 @@ async def unsave_post(
 ):
     """게시물 저장 취소"""
     # 저장 확인
-    if not is_post_saved(current_user['id'], post_id):
+    if not is_post_saved(post_id, current_user['id']):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Not saved this post"
