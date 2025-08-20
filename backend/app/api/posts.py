@@ -414,10 +414,11 @@ async def like_post(
     
     # 좋아요 추가 (중복 시 무시)
     try:
-        query = "INSERT INTO likes (user_id, post_id) VALUES (%s, %s)"
+        query = "INSERT INTO likes (user_id, post_id, created_at) VALUES (%s, %s, %s)"
         execute_query(query, (
             current_user['id'],
-            post_id
+            post_id,
+            datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
         ))
     except Exception as e:
         # SQLite의 경우 IntegrityError, PostgreSQL의 경우 다른 에러일 수 있음
