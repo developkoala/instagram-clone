@@ -36,12 +36,12 @@ async def list_users(page: int = 1, limit: int = 20, q: Optional[str] = None):
     base = "SELECT id, email, username, created_at FROM users"
     params: list = []
     if q:
-        base += " WHERE email LIKE ? OR username LIKE ?"
+        base += " WHERE email LIKE %s OR username LIKE %s"
         like = f"%{q}%"
         params.extend([like, like])
-    count_query = f"SELECT COUNT(*) as count FROM ({base})"
+    count_query = f"SELECT COUNT(*) as count FROM ({base}) AS subquery"
     total = execute_query(count_query, tuple(params), fetch_one=True)["count"]
-    query = base + " ORDER BY created_at DESC LIMIT ? OFFSET ?"
+    query = base + " ORDER BY created_at DESC LIMIT %s OFFSET %s"
     params.extend([limit, offset])
     users = execute_query(query, tuple(params))
     return {"users": users, "page": page, "has_next": offset + limit < total, "total": total}
@@ -49,10 +49,33 @@ async def list_users(page: int = 1, limit: int = 20, q: Optional[str] = None):
 
 @router.delete("/users/{user_id}", dependencies=[Depends(ensure_admin)])
 async def delete_user(user_id: str):
-    user = execute_query("SELECT * FROM users WHERE id = ?", (user_id,), fetch_one=True)
+    user = execute_query("SELECT * FROM users WHERE id = %s", (user_id,), fetch_one=True)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    execute_query("DELETE FROM users WHERE id = ?", (user_id,))
+    # 관련 데이터를 먼저 삭제 (외래키 제약 조건 때문에)
+    # 1. 사용자의 모든 게시물과 관련 데이터 삭제
+    posts = execute_query("SELECT id FROM posts WHERE user_id = %s", (user_id,))
+    for post in posts:
+        execute_query("DELETE FROM post_images WHERE post_id = %s", (post['id'],))
+        execute_query("DELETE FROM likes WHERE post_id = %s", (post['id'],))
+        execute_query("DELETE FROM comments WHERE post_id = %s", (post['id'],))
+        execute_query("DELETE FROM saved_posts WHERE post_id = %s", (post['id'],))
+    execute_query("DELETE FROM posts WHERE user_id = %s", (user_id,))
+    
+    # 2. 사용자가 작성한 댓글 삭제
+    execute_query("DELETE FROM comments WHERE user_id = %s", (user_id,))
+    
+    # 3. 사용자의 팔로우 관계 삭제
+    execute_query("DELETE FROM follows WHERE follower_id = %s OR following_id = %s", (user_id, user_id))
+    
+    # 4. 사용자가 누른 좋아요 삭제
+    execute_query("DELETE FROM likes WHERE user_id = %s", (user_id,))
+    
+    # 5. 사용자가 저장한 게시물 삭제
+    execute_query("DELETE FROM saved_posts WHERE user_id = %s", (user_id,))
+    
+    # 6. 마지막으로 사용자 삭제
+    execute_query("DELETE FROM users WHERE id = %s", (user_id,))
     return {"message": "User deleted"}
 
 
@@ -70,11 +93,11 @@ async def list_posts(page: int = 1, limit: int = 20, user_id: Optional[str] = No
     """
     params: list = []
     if user_id:
-        base += " WHERE p.user_id = ?"
+        base += " WHERE p.user_id = %s"
         params.append(user_id)
-    count_query = f"SELECT COUNT(*) as count FROM ({base})"
+    count_query = f"SELECT COUNT(*) as count FROM ({base}) AS subquery"
     total = execute_query(count_query, tuple(params), fetch_one=True)["count"]
-    query = base + " ORDER BY p.created_at DESC LIMIT ? OFFSET ?"
+    query = base + " ORDER BY p.created_at DESC LIMIT %s OFFSET %s"
     params.extend([limit, offset])
     posts = execute_query(query, tuple(params))
     return {"posts": posts, "page": page, "has_next": offset + limit < total, "total": total}
@@ -82,11 +105,11 @@ async def list_posts(page: int = 1, limit: int = 20, user_id: Optional[str] = No
 
 @router.delete("/posts/{post_id}", dependencies=[Depends(ensure_admin)])
 async def admin_delete_post(post_id: str):
-    post = execute_query("SELECT * FROM posts WHERE id = ?", (post_id,), fetch_one=True)
+    post = execute_query("SELECT * FROM posts WHERE id = %s", (post_id,), fetch_one=True)
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
     # 이미지 파일까지 정리
-    images = execute_query("SELECT image_url FROM post_images WHERE post_id = ?", (post_id,))
+    images = execute_query("SELECT image_url FROM post_images WHERE post_id = %s", (post_id,))
     import os
     for img in images:
         file_path = os.path.join("backend", img["image_url"].lstrip("/"))
@@ -95,7 +118,13 @@ async def admin_delete_post(post_id: str):
                 os.remove(file_path)
         except Exception:
             pass
-    execute_query("DELETE FROM posts WHERE id = ?", (post_id,))
+    # 관련 데이터를 먼저 삭제 (외래키 제약 조건 때문에)
+    execute_query("DELETE FROM post_images WHERE post_id = %s", (post_id,))
+    execute_query("DELETE FROM likes WHERE post_id = %s", (post_id,))
+    execute_query("DELETE FROM comments WHERE post_id = %s", (post_id,))
+    execute_query("DELETE FROM saved_posts WHERE post_id = %s", (post_id,))
+    # 마지막으로 게시물 삭제
+    execute_query("DELETE FROM posts WHERE id = %s", (post_id,))
     return {"message": "Post deleted"}
 
 
@@ -121,17 +150,17 @@ async def get_stats():
     # 일자별 가입/게시물 (최근 7일)
     daily_users = execute_query(
         """
-        SELECT substr(created_at, 1, 10) as day, COUNT(*) as count
+        SELECT DATE(created_at) as day, COUNT(*) as count
         FROM users
-        WHERE created_at >= date('now','-6 day')
+        WHERE created_at >= CURRENT_DATE - INTERVAL '6 days'
         GROUP BY day ORDER BY day
         """
     )
     daily_posts = execute_query(
         """
-        SELECT substr(created_at, 1, 10) as day, COUNT(*) as count
+        SELECT DATE(created_at) as day, COUNT(*) as count
         FROM posts
-        WHERE created_at >= date('now','-6 day')
+        WHERE created_at >= CURRENT_DATE - INTERVAL '6 days'
         GROUP BY day ORDER BY day
         """
     )

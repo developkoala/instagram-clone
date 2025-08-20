@@ -21,7 +21,7 @@ const AdminLogin: React.FC = () => {
     setLoading(true);
     try {
       // 관리자 로그인
-      const response = await fetch('http://127.0.0.1:8000/api/admin/login', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/login`, {
         method: 'POST',
         headers: {
           'Authorization': 'Basic ' + btoa(username + ':' + password)

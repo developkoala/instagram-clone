@@ -27,9 +27,9 @@ async def get_post_comments(
                u.id as user_id, u.username, u.profile_picture
         FROM comments c
         JOIN users u ON c.user_id = u.id
-        WHERE c.post_id = ?
+        WHERE c.post_id = %s
         ORDER BY c.created_at DESC
-        LIMIT ? OFFSET ?
+        LIMIT %s OFFSET %s
         """
     )
     rows = execute_query(query, (post_id, limit, offset)) or []
@@ -50,7 +50,7 @@ async def get_post_comments(
     ]
 
     total = execute_query(
-        "SELECT COUNT(*) as count FROM comments WHERE post_id = ?",
+        "SELECT COUNT(*) as count FROM comments WHERE post_id = %s",
         (post_id,),
         fetch_one=True,
     )["count"]
@@ -70,7 +70,7 @@ async def create_comment(
     current_user: dict = Depends(get_current_user),
 ):
     post = execute_query(
-        "SELECT id FROM posts WHERE id = ?",
+        "SELECT id FROM posts WHERE id = %s",
         (post_id,),
         fetch_one=True,
     )
@@ -83,7 +83,7 @@ async def create_comment(
     execute_query(
         """
         INSERT INTO comments (id, post_id, user_id, parent_comment_id, content, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
         """,
         (
             comment_id,
@@ -98,7 +98,7 @@ async def create_comment(
 
     # 게시물 작성자에게 웹소켓으로 알림 전송
     post_owner = execute_query(
-        "SELECT user_id FROM posts WHERE id = ?",
+        "SELECT user_id FROM posts WHERE id = %s",
         (post_id,),
         fetch_one=True,
     )
@@ -147,7 +147,7 @@ async def create_comment(
 @router.delete("/comments/{comment_id}")
 async def delete_comment(comment_id: str, current_user: dict = Depends(get_current_user)):
     comment = execute_query(
-        "SELECT * FROM comments WHERE id = ?",
+        "SELECT * FROM comments WHERE id = %s",
         (comment_id,),
         fetch_one=True,
     )
@@ -157,7 +157,7 @@ async def delete_comment(comment_id: str, current_user: dict = Depends(get_curre
     if comment["user_id"] != current_user["id"]:
         raise HTTPException(status_code=403, detail="Not allowed to delete this comment")
 
-    execute_query("DELETE FROM comments WHERE id = ?", (comment_id,))
+    execute_query("DELETE FROM comments WHERE id = %s", (comment_id,))
     return {"message": "Comment deleted successfully"}
 
 

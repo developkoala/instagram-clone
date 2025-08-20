@@ -13,7 +13,7 @@ from app.utils.security import generate_uuid
 from datetime import datetime
 import os
 import shutil
-from PIL import Image
+from PIL import Image, ImageOps
 
 router = APIRouter(prefix="/api/posts", tags=["Posts"])
 
@@ -36,10 +36,10 @@ async def get_feed(
             FROM posts p
             JOIN users u ON p.user_id = u.id
             LEFT JOIN follows f ON p.user_id = f.following_id
-            WHERE (f.follower_id = ? OR p.user_id = ?)
-              AND p.is_archived = 0
+            WHERE (f.follower_id = %s OR p.user_id = %s)
+              AND p.is_archived = false
             ORDER BY p.created_at DESC
-            LIMIT ? OFFSET ?
+            LIMIT %s OFFSET %s
         """
         posts = execute_query(query, (current_user['id'], current_user['id'], limit, offset))
     else:
@@ -51,9 +51,9 @@ async def get_feed(
                    (SELECT COUNT(*) FROM comments WHERE post_id = p.id) as comments_count
             FROM posts p
             JOIN users u ON p.user_id = u.id
-            WHERE p.is_archived = 0
+            WHERE p.is_archived = false
             ORDER BY p.created_at DESC
-            LIMIT ? OFFSET ?
+            LIMIT %s OFFSET %s
         """
         posts = execute_query(query, (limit, offset))
     
@@ -61,7 +61,7 @@ async def get_feed(
     result = []
     for post in posts:
         # 이미지 조회
-        images_query = "SELECT id, image_url, position FROM post_images WHERE post_id = ? ORDER BY position"
+        images_query = "SELECT id, image_url, position FROM post_images WHERE post_id = %s ORDER BY position"
         images = execute_query(images_query, (post['id'],))
         
         # 좋아요/저장 여부 (로그인한 경우에만)
@@ -104,15 +104,15 @@ async def get_explore_posts(
                    (SELECT image_url FROM post_images WHERE post_id = p.id ORDER BY position LIMIT 1) as image_url,
                    (SELECT COUNT(*) FROM likes WHERE post_id = p.id) as likes_count
             FROM posts p
-            WHERE p.is_archived = 0
-              AND p.user_id != ?
+            WHERE p.is_archived = false
+              AND p.user_id != %s
             ORDER BY likes_count DESC, p.created_at DESC
-            LIMIT ? OFFSET ?
+            LIMIT %s OFFSET %s
         """
         posts = execute_query(query, (current_user['id'], limit, offset))
         
         # 전체 개수 (페이징용)
-        total_query = "SELECT COUNT(*) as count FROM posts WHERE is_archived = 0 AND user_id != ?"
+        total_query = "SELECT COUNT(*) as count FROM posts WHERE is_archived = false AND user_id != %s"
         total = execute_query(total_query, (current_user['id'],), fetch_one=True)['count']
     else:
         # 비로그인한 경우: 모든 게시물
@@ -121,14 +121,14 @@ async def get_explore_posts(
                    (SELECT image_url FROM post_images WHERE post_id = p.id ORDER BY position LIMIT 1) as image_url,
                    (SELECT COUNT(*) FROM likes WHERE post_id = p.id) as likes_count
             FROM posts p
-            WHERE p.is_archived = 0
+            WHERE p.is_archived = false
             ORDER BY likes_count DESC, p.created_at DESC
-            LIMIT ? OFFSET ?
+            LIMIT %s OFFSET %s
         """
         posts = execute_query(query, (limit, offset))
         
         # 전체 개수 (페이징용)
-        total_query = "SELECT COUNT(*) as count FROM posts WHERE is_archived = 0"
+        total_query = "SELECT COUNT(*) as count FROM posts WHERE is_archived = false"
         total = execute_query(total_query, (), fetch_one=True)['count']
     
     # 결과 포맷팅
@@ -164,9 +164,9 @@ async def get_saved_posts(
         FROM posts p
         JOIN users u ON p.user_id = u.id
         JOIN saved_posts sp ON p.id = sp.post_id
-        WHERE sp.user_id = ?
+        WHERE sp.user_id = %s
         ORDER BY sp.created_at DESC
-        LIMIT ? OFFSET ?
+        LIMIT %s OFFSET %s
     """
     
     posts = execute_query(query, (current_user['id'], limit, offset))
@@ -175,7 +175,7 @@ async def get_saved_posts(
     result = []
     for post in posts:
         # 첫 번째 이미지만 조회
-        image_query = "SELECT image_url FROM post_images WHERE post_id = ? ORDER BY position LIMIT 1"
+        image_query = "SELECT image_url FROM post_images WHERE post_id = %s ORDER BY position LIMIT 1"
         image = execute_query(image_query, (post['id'],), fetch_one=True)
         
         result.append({
@@ -193,7 +193,7 @@ async def get_saved_posts(
         })
     
     # 전체 개수
-    total_query = "SELECT COUNT(*) as count FROM saved_posts WHERE user_id = ?"
+    total_query = "SELECT COUNT(*) as count FROM saved_posts WHERE user_id = %s"
     total = execute_query(total_query, (current_user['id'],), fetch_one=True)['count']
     
     return {
@@ -264,7 +264,7 @@ async def create_post(
     
     post_query = """
         INSERT INTO posts (id, user_id, caption, location, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?)
+        VALUES (%s, %s, %s, %s, %s, %s)
     """
     execute_query(post_query, (post_id, current_user['id'], caption, location, now, now))
     
@@ -279,7 +279,7 @@ async def create_post(
         # 파일 확장자 확인
         if not image_file.filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
             # 게시물 삭제 (롤백)
-            execute_query("DELETE FROM posts WHERE id = ?", (post_id,))
+            execute_query("DELETE FROM posts WHERE id = %s", (post_id,))
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Invalid file format for {image_file.filename}"
@@ -294,9 +294,15 @@ async def create_post(
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(image_file.file, buffer)
         
-        # 이미지 리사이징
+        # 이미지 열기 및 EXIF 오리엔테이션 처리
         img = Image.open(file_path)
-        img = img.convert('RGB')
+        
+        # EXIF 데이터에 따라 이미지 회전 (모바일 카메라 이슈 해결)
+        img = ImageOps.exif_transpose(img)
+        
+        # RGB로 변환 (투명도 제거)
+        if img.mode != 'RGB':
+            img = img.convert('RGB')
         
         # 최대 크기 제한 (1080px)
         max_size = 1080
@@ -311,7 +317,7 @@ async def create_post(
         image_url = f"/uploads/posts/{file_name}"
         image_query = """
             INSERT INTO post_images (id, post_id, image_url, position, width, height, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
         """
         execute_query(image_query, (image_id, post_id, image_url, idx, width, height, now))
         
@@ -340,7 +346,7 @@ async def delete_post(
     """게시물 삭제"""
     # 게시물 조회
     post = execute_query(
-        "SELECT * FROM posts WHERE id = ?",
+        "SELECT * FROM posts WHERE id = %s",
         (post_id,), fetch_one=True
     )
     
@@ -359,7 +365,7 @@ async def delete_post(
     
     # 이미지 파일 삭제
     images = execute_query(
-        "SELECT image_url FROM post_images WHERE post_id = ?",
+        "SELECT image_url FROM post_images WHERE post_id = %s",
         (post_id,)
     )
     
@@ -371,8 +377,13 @@ async def delete_post(
         if os.path.exists(file_path):
             os.remove(file_path)
     
-    # DB에서 게시물 삭제 (CASCADE로 관련 데이터도 삭제됨)
-    execute_query("DELETE FROM posts WHERE id = ?", (post_id,))
+    # DB에서 관련 데이터를 먼저 삭제 (외래키 제약 조건 때문에)
+    execute_query("DELETE FROM post_images WHERE post_id = %s", (post_id,))
+    execute_query("DELETE FROM likes WHERE post_id = %s", (post_id,))
+    execute_query("DELETE FROM comments WHERE post_id = %s", (post_id,))
+    execute_query("DELETE FROM saved_posts WHERE post_id = %s", (post_id,))
+    # 마지막으로 게시물 삭제
+    execute_query("DELETE FROM posts WHERE id = %s", (post_id,))
     
     return {"message": "Post deleted successfully"}
 
@@ -384,7 +395,7 @@ async def like_post(
     """게시물 좋아요"""
     # 게시물 확인
     post = execute_query(
-        "SELECT * FROM posts WHERE id = ?",
+        "SELECT * FROM posts WHERE id = %s",
         (post_id,), fetch_one=True
     )
     
@@ -402,8 +413,9 @@ async def like_post(
         )
     
     # 좋아요 추가
-    query = "INSERT INTO likes (user_id, post_id, created_at) VALUES (?, ?, ?)"
+    query = "INSERT INTO likes (id, user_id, post_id, created_at) VALUES (%s, %s, %s, %s)"
     execute_query(query, (
+        generate_uuid(),
         current_user['id'],
         post_id,
         datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
@@ -411,7 +423,7 @@ async def like_post(
     
     # 좋아요 수 조회
     likes_count = execute_query(
-        "SELECT COUNT(*) as count FROM likes WHERE post_id = ?",
+        "SELECT COUNT(*) as count FROM likes WHERE post_id = %s",
         (post_id,), fetch_one=True
     )['count']
     
@@ -458,12 +470,12 @@ async def unlike_post(
         )
     
     # 좋아요 삭제
-    query = "DELETE FROM likes WHERE user_id = ? AND post_id = ?"
+    query = "DELETE FROM likes WHERE user_id = %s AND post_id = %s"
     execute_query(query, (current_user['id'], post_id))
     
     # 좋아요 수 조회
     likes_count = execute_query(
-        "SELECT COUNT(*) as count FROM likes WHERE post_id = ?",
+        "SELECT COUNT(*) as count FROM likes WHERE post_id = %s",
         (post_id,), fetch_one=True
     )['count']
     
@@ -481,7 +493,7 @@ async def save_post(
     """게시물 저장"""
     # 게시물 확인
     post = execute_query(
-        "SELECT * FROM posts WHERE id = ?",
+        "SELECT * FROM posts WHERE id = %s",
         (post_id,), fetch_one=True
     )
     
@@ -499,8 +511,9 @@ async def save_post(
         )
     
     # 저장 추가
-    query = "INSERT INTO saved_posts (user_id, post_id, created_at) VALUES (?, ?, ?)"
+    query = "INSERT INTO saved_posts (id, user_id, post_id, created_at) VALUES (%s, %s, %s, %s)"
     execute_query(query, (
+        generate_uuid(),
         current_user['id'],
         post_id,
         datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
@@ -525,7 +538,7 @@ async def unsave_post(
         )
     
     # 저장 삭제
-    query = "DELETE FROM saved_posts WHERE user_id = ? AND post_id = ?"
+    query = "DELETE FROM saved_posts WHERE user_id = %s AND post_id = %s"
     execute_query(query, (current_user['id'], post_id))
     
     return {
@@ -543,7 +556,7 @@ async def get_user_posts(
     """사용자 게시물 조회"""
     # 사용자 조회
     user = execute_query(
-        "SELECT * FROM users WHERE username = ?",
+        "SELECT * FROM users WHERE username = %s",
         (username,), fetch_one=True
     )
     
@@ -562,9 +575,9 @@ async def get_user_posts(
                (SELECT COUNT(*) FROM likes WHERE post_id = p.id) as likes_count,
                (SELECT COUNT(*) FROM comments WHERE post_id = p.id) as comments_count
         FROM posts p
-        WHERE p.user_id = ? AND p.is_archived = 0
+        WHERE p.user_id = %s AND p.is_archived = false
         ORDER BY p.created_at DESC
-        LIMIT ? OFFSET ?
+        LIMIT %s OFFSET %s
     """
     
     posts = execute_query(query, (user['id'], limit, offset))
@@ -582,7 +595,7 @@ async def get_user_posts(
     
     # 전체 개수
     total = execute_query(
-        "SELECT COUNT(*) as count FROM posts WHERE user_id = ? AND is_archived = 0",
+        "SELECT COUNT(*) as count FROM posts WHERE user_id = %s AND is_archived = false",
         (user['id'],), fetch_one=True
     )['count']
     

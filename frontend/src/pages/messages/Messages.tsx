@@ -22,6 +22,7 @@ const Messages: React.FC = () => {
   const { subscribeToChatMessage, unsubscribeFromChatMessage, setActiveConversation } = useWebSocket();
   const { showToast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // 스크롤을 맨 아래로 이동
   const scrollToBottom = () => {
@@ -88,6 +89,10 @@ const Messages: React.FC = () => {
       // console.log('✅ Message sent successfully');
       // 웹소켓으로 메시지를 받을 것이므로 여기서는 상태 업데이트하지 않음
       setMessageText('');
+      // 메시지 전송 후 입력창에 다시 포커스
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
     } catch (error) {
       console.error('❌ Failed to send message:', error);
       showToast('메시지 전송에 실패했습니다.', 'error');
@@ -240,14 +245,14 @@ const Messages: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex h-[calc(100vh-60px)] bg-white items-center justify-center">
+      <div className="flex h-[calc(100vh-108px)] md:h-[calc(100vh-60px)] bg-white items-center justify-center">
         <div className="text-gray-500">로딩 중...</div>
       </div>
     );
   }
 
   return (
-    <div className="flex h-[calc(100vh-60px)] bg-white">
+    <div className="flex h-[calc(100vh-108px)] md:h-[calc(100vh-60px)] bg-white">
       {/* Sidebar - Chat List (Hidden on mobile when conversation is selected) */}
       <div className={`${selectedConversation ? 'hidden md:flex' : 'flex'} w-full md:w-96 border-r border-instagram-border flex-col`}>
         {/* Header */}
@@ -450,9 +455,19 @@ const Messages: React.FC = () => {
           <div className="p-3 md:p-4 border-t border-instagram-border">
             <form className="flex items-center gap-2 md:gap-3" onSubmit={handleSendMessage}>
               <input
+                ref={inputRef}
                 type="text"
                 value={messageText}
                 onChange={(e) => setMessageText(e.target.value)}
+                onKeyDown={(e) => {
+                  // Mac에서 엔터키 처리 개선
+                  if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
+                    e.preventDefault();
+                    if (messageText.trim() && !sending) {
+                      handleSendMessage(e as any);
+                    }
+                  }
+                }}
                 onFocus={() => {
                   // 입력창 포커스 시에도 읽음 처리
                   if (selectedConversation) {

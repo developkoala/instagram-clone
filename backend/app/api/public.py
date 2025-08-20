@@ -21,15 +21,15 @@ async def search_users(
             SELECT id, username, profile_picture, bio,
                    (SELECT COUNT(*) FROM follows WHERE following_id = users.id) as followers_count
             FROM users
-            WHERE username LIKE ?
+            WHERE username LIKE %s
             ORDER BY 
                 CASE 
-                    WHEN username LIKE ? THEN 0
-                    WHEN username LIKE ? THEN 1
+                    WHEN username LIKE %s THEN 0
+                    WHEN username LIKE %s THEN 1
                     ELSE 2
                 END,
                 followers_count DESC
-            LIMIT ?
+            LIMIT %s
         """
         
         # 정확한 매칭을 우선순위로 정렬
@@ -47,7 +47,7 @@ async def search_users(
                    (SELECT COUNT(*) FROM follows WHERE following_id = users.id) as followers_count
             FROM users
             ORDER BY followers_count DESC, created_at DESC
-            LIMIT ?
+            LIMIT %s
         """
         users = execute_query(query, (limit,))
     

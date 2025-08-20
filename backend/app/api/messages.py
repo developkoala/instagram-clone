@@ -49,8 +49,8 @@ async def get_conversations(
                latest_msg.sender_id as last_message_sender,
                (SELECT COUNT(*) FROM messages 
                 WHERE conversation_id = c.id 
-                  AND sender_id != ? 
-                  AND is_read = 0) as unread_count
+                  AND sender_id != %s 
+                  AND is_read = false) as unread_count
         FROM conversations c
         LEFT JOIN users u1 ON c.participant1_id = u1.id
         LEFT JOIN users u2 ON c.participant2_id = u2.id
@@ -63,7 +63,7 @@ async def get_conversations(
                 GROUP BY conversation_id
             ) m2 ON m1.conversation_id = m2.conversation_id AND m1.created_at = m2.max_time
         ) latest_msg ON c.id = latest_msg.conversation_id
-        WHERE c.participant1_id = ? OR c.participant2_id = ?
+        WHERE c.participant1_id = %s OR c.participant2_id = %s
         ORDER BY c.updated_at DESC
     """
     
@@ -122,7 +122,7 @@ async def create_or_get_conversation(
     # 기존 대화방 확인 (정렬된 ID로)
     existing_query = """
         SELECT id FROM conversations 
-        WHERE participant1_id = ? AND participant2_id = ?
+        WHERE participant1_id = %s AND participant2_id = %s
     """
     existing = execute_query(existing_query, (p1_id, p2_id), fetch_one=True)
     
@@ -135,7 +135,7 @@ async def create_or_get_conversation(
     
     create_query = """
         INSERT INTO conversations (id, participant1_id, participant2_id, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?)
+        VALUES (%s, %s, %s, %s, %s)
     """
     execute_query(create_query, (conversation_id, p1_id, p2_id, now, now))
     
@@ -152,7 +152,7 @@ async def get_messages(
     # 대화방 참여 권한 확인
     conv_check = """
         SELECT id FROM conversations 
-        WHERE id = ? AND (participant1_id = ? OR participant2_id = ?)
+        WHERE id = %s AND (participant1_id = %s OR participant2_id = %s)
     """
     conversation = execute_query(conv_check, (conversation_id, current_user['id'], current_user['id']), fetch_one=True)
     
@@ -169,9 +169,9 @@ async def get_messages(
                u.id as sender_id, u.username, u.profile_picture
         FROM messages m
         JOIN users u ON m.sender_id = u.id
-        WHERE m.conversation_id = ?
+        WHERE m.conversation_id = %s
         ORDER BY m.created_at DESC
-        LIMIT ? OFFSET ?
+        LIMIT %s OFFSET %s
     """
     
     messages = execute_query(messages_query, (conversation_id, limit, offset))
@@ -179,8 +179,8 @@ async def get_messages(
     # 메시지를 읽음 처리 (상대방이 보낸 메시지만)
     mark_read_query = """
         UPDATE messages 
-        SET is_read = 1 
-        WHERE conversation_id = ? AND sender_id != ? AND is_read = 0
+        SET is_read = true 
+        WHERE conversation_id = %s AND sender_id != %s AND is_read = false
     """
     execute_query(mark_read_query, (conversation_id, current_user['id']))
     
@@ -220,7 +220,7 @@ async def send_message(
     # 대화방 참여 권한 확인
     conv_query = """
         SELECT participant1_id, participant2_id FROM conversations 
-        WHERE id = ? AND (participant1_id = ? OR participant2_id = ?)
+        WHERE id = %s AND (participant1_id = %s OR participant2_id = %s)
     """
     conversation = execute_query(conv_query, (conversation_id, current_user['id'], current_user['id']), fetch_one=True)
     
@@ -236,13 +236,13 @@ async def send_message(
     
     insert_query = """
         INSERT INTO messages (id, conversation_id, sender_id, content, message_type, created_at)
-        VALUES (?, ?, ?, ?, ?, ?)
+        VALUES (%s, %s, %s, %s, %s, %s)
     """
     execute_query(insert_query, (message_id, conversation_id, current_user['id'], message_data.content, message_data.message_type, now))
     
     # 대화방 업데이트 시간 갱신
     update_conv_query = """
-        UPDATE conversations SET updated_at = ? WHERE id = ?
+        UPDATE conversations SET updated_at = %s WHERE id = %s
     """
     execute_query(update_conv_query, (now, conversation_id))
     
@@ -303,4 +303,33 @@ async def send_message(
         'created_at': format_datetime(now),
         'is_read': False
     }
+
+@router.post("/conversations/{conversation_id}/read")
+async def mark_messages_as_read(
+    conversation_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """대화방의 메시지들을 읽음 처리"""
+    # 대화방 참여 권한 확인
+    conv_check = """
+        SELECT id FROM conversations 
+        WHERE id = %s AND (participant1_id = %s OR participant2_id = %s)
+    """
+    conversation = execute_query(conv_check, (conversation_id, current_user['id'], current_user['id']), fetch_one=True)
+    
+    if not conversation:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Conversation not found"
+        )
+    
+    # 상대방이 보낸 메시지들을 읽음 처리
+    mark_read_query = """
+        UPDATE messages 
+        SET is_read = true 
+        WHERE conversation_id = %s AND sender_id != %s AND is_read = false
+    """
+    execute_query(mark_read_query, (conversation_id, current_user['id']))
+    
+    return {"message": "Messages marked as read"}
 

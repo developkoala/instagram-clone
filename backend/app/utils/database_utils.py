@@ -1,17 +1,59 @@
-import sqlite3
+import psycopg2
+from psycopg2.extras import RealDictCursor
 from typing import Optional, List, Dict, Any
 import os
 from datetime import datetime
+from app.config import get_settings
 
-# Database path (absolute path to backend/instagram_clone.db)
-_BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-DATABASE_PATH = os.path.join(_BASE_DIR, 'instagram_clone.db')
+# Get database URL from settings
+settings = get_settings()
 
 def get_db_connection():
-    """Get database connection with Row factory"""
-    conn = sqlite3.connect(DATABASE_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
+    """Get PostgreSQL database connection with RealDictCursor"""
+    # Parse DATABASE_URL
+    db_url = settings.database_url
+    
+    # Extract connection parameters from URL
+    # Format: postgresql://user:password@host/database or postgresql://user:password@host:port/database
+    if db_url.startswith('postgresql://'):
+        db_url = db_url.replace('postgresql://', '')
+        user_pass, host_db = db_url.split('@')
+        user, password = user_pass.split(':')
+        
+        # Check if port is included
+        if '/' in host_db:
+            host_part, database = host_db.split('/', 1)
+            if ':' in host_part:
+                host, port = host_part.split(':')
+                port = int(port)
+            else:
+                host = host_part
+                port = 5432
+        else:
+            # Handle case with no database name
+            host = host_db
+            database = 'instagram_clone'
+            port = 5432
+        
+        conn = psycopg2.connect(
+            host=host,
+            port=port,
+            database=database,
+            user=user,
+            password=password,
+            cursor_factory=RealDictCursor
+        )
+        return conn
+    else:
+        # Fallback to direct connection
+        conn = psycopg2.connect(
+            host="localhost",
+            database="instagram_clone",
+            user="instagram_user",
+            password="instagram_pass123",
+            cursor_factory=RealDictCursor
+        )
+        return conn
 
 def execute_query(
     query: str,
@@ -68,17 +110,17 @@ def fetch_all(query: str, params: tuple = ()) -> List[Dict[str, Any]]:
 # User-related queries
 def get_user_by_email(email: str) -> Optional[Dict[str, Any]]:
     """Get user by email"""
-    query = "SELECT * FROM users WHERE email = ?"
+    query = "SELECT * FROM users WHERE email = %s"
     return fetch_one(query, (email,))
 
 def get_user_by_username(username: str) -> Optional[Dict[str, Any]]:
     """Get user by username"""
-    query = "SELECT * FROM users WHERE username = ?"
+    query = "SELECT * FROM users WHERE username = %s"
     return fetch_one(query, (username,))
 
 def get_user_by_id(user_id: str) -> Optional[Dict[str, Any]]:
     """Get user by ID"""
-    query = "SELECT * FROM users WHERE id = ?"
+    query = "SELECT * FROM users WHERE id = %s"
     return fetch_one(query, (user_id,))
 
 # Post-related queries
@@ -88,9 +130,9 @@ def get_posts_by_user(user_id: str, limit: int = 20, offset: int = 0) -> List[Di
         SELECT p.*, u.username, u.profile_picture
         FROM posts p
         JOIN users u ON p.user_id = u.id
-        WHERE p.user_id = ?
+        WHERE p.user_id = %s
         ORDER BY p.created_at DESC
-        LIMIT ? OFFSET ?
+        LIMIT %s OFFSET %s
     """
     return fetch_all(query, (user_id, limit, offset))
 
@@ -101,17 +143,17 @@ def get_feed_posts(user_id: str, limit: int = 20, offset: int = 0) -> List[Dict[
         FROM posts p
         JOIN users u ON p.user_id = u.id
         WHERE p.user_id IN (
-            SELECT following_id FROM follows WHERE follower_id = ?
-        ) OR p.user_id = ?
+            SELECT following_id FROM follows WHERE follower_id = %s
+        ) OR p.user_id = %s
         ORDER BY p.created_at DESC
-        LIMIT ? OFFSET ?
+        LIMIT %s OFFSET %s
     """
     return fetch_all(query, (user_id, user_id, limit, offset))
 
 # Follow-related queries
 def is_following(follower_id: str, following_id: str) -> bool:
     """Check if user is following another user"""
-    query = "SELECT 1 FROM follows WHERE follower_id = ? AND following_id = ?"
+    query = "SELECT 1 FROM follows WHERE follower_id = %s AND following_id = %s"
     result = fetch_one(query, (follower_id, following_id))
     return result is not None
 
@@ -120,7 +162,7 @@ def get_followers(user_id: str) -> List[Dict[str, Any]]:
     query = """
         SELECT u.* FROM users u
         JOIN follows f ON u.id = f.follower_id
-        WHERE f.following_id = ?
+        WHERE f.following_id = %s
     """
     return fetch_all(query, (user_id,))
 
@@ -129,20 +171,20 @@ def get_following(user_id: str) -> List[Dict[str, Any]]:
     query = """
         SELECT u.* FROM users u
         JOIN follows f ON u.id = f.following_id
-        WHERE f.follower_id = ?
+        WHERE f.follower_id = %s
     """
     return fetch_all(query, (user_id,))
 
 # Like-related queries
 def is_post_liked(user_id: str, post_id: str) -> bool:
     """Check if user liked a post"""
-    query = "SELECT 1 FROM likes WHERE user_id = ? AND post_id = ?"
+    query = "SELECT 1 FROM likes WHERE user_id = %s AND post_id = %s"
     result = fetch_one(query, (user_id, post_id))
     return result is not None
 
 def get_post_likes_count(post_id: str) -> int:
     """Get number of likes for a post"""
-    query = "SELECT COUNT(*) as count FROM likes WHERE post_id = ?"
+    query = "SELECT COUNT(*) as count FROM likes WHERE post_id = %s"
     result = fetch_one(query, (post_id,))
     return result['count'] if result else 0
 
@@ -153,21 +195,21 @@ def get_post_comments(post_id: str) -> List[Dict[str, Any]]:
         SELECT c.*, u.username, u.profile_picture
         FROM comments c
         JOIN users u ON c.user_id = u.id
-        WHERE c.post_id = ?
+        WHERE c.post_id = %s
         ORDER BY c.created_at DESC
     """
     return fetch_all(query, (post_id,))
 
 def get_post_comments_count(post_id: str) -> int:
     """Get number of comments for a post"""
-    query = "SELECT COUNT(*) as count FROM comments WHERE post_id = ?"
+    query = "SELECT COUNT(*) as count FROM comments WHERE post_id = %s"
     result = fetch_one(query, (post_id,))
     return result['count'] if result else 0
 
 # Save-related queries  
 def is_post_saved(user_id: str, post_id: str) -> bool:
     """Check if user saved a post"""
-    query = "SELECT 1 FROM saved_posts WHERE user_id = ? AND post_id = ?"
+    query = "SELECT 1 FROM saved_posts WHERE user_id = %s AND post_id = %s"
     result = fetch_one(query, (user_id, post_id))
     return result is not None
 
@@ -178,46 +220,12 @@ def get_saved_posts(user_id: str) -> List[Dict[str, Any]]:
         FROM posts p
         JOIN users u ON p.user_id = u.id
         JOIN saved_posts s ON p.id = s.post_id
-        WHERE s.user_id = ?
+        WHERE s.user_id = %s
         ORDER BY s.created_at DESC
     """
     return fetch_all(query, (user_id,))
 
 # Post detail with images, like/save state, counts
-def get_post_with_details(post_id: str, current_user_id: Optional[str] = None) -> Optional[Dict[str, Any]]:
-    post = fetch_one(
-        """
-        SELECT p.*, u.username, u.profile_picture
-        FROM posts p
-        JOIN users u ON p.user_id = u.id
-        WHERE p.id = ?
-        """,
-        (post_id,)
-    )
-    if not post:
-        return None
-
-    images = fetch_all(
-        "SELECT id, image_url, position FROM post_images WHERE post_id = ? ORDER BY position",
-        (post_id,)
-    )
-    likes_count = get_post_likes_count(post_id)
-    comments_count = get_post_comments_count(post_id)
-    is_liked = False
-    is_saved = False
-    if current_user_id:
-        is_liked = is_post_liked(current_user_id, post_id)
-        is_saved = is_post_saved(current_user_id, post_id)
-
-    return {
-        **post,
-        'images': images,
-        'likes_count': likes_count,
-        'comments_count': comments_count,
-        'is_liked': is_liked,
-        'is_saved': is_saved,
-    }
-
 def get_post_with_details(post_id: str, current_user_id: Optional[str] = None) -> Optional[Dict[str, Any]]:
     """Get post with all details"""
     # Get post basic info
@@ -227,7 +235,7 @@ def get_post_with_details(post_id: str, current_user_id: Optional[str] = None) -
                (SELECT COUNT(*) FROM comments WHERE post_id = p.id) as comments_count
         FROM posts p
         JOIN users u ON p.user_id = u.id
-        WHERE p.id = ?
+        WHERE p.id = %s
     """
     post = fetch_one(post_query, (post_id,))
     
@@ -235,7 +243,7 @@ def get_post_with_details(post_id: str, current_user_id: Optional[str] = None) -
         return None
     
     # Get post images
-    images_query = "SELECT * FROM post_images WHERE post_id = ? ORDER BY position"
+    images_query = "SELECT * FROM post_images WHERE post_id = %s ORDER BY position"
     images = fetch_all(images_query, (post_id,))
     post['images'] = images
     
@@ -254,7 +262,10 @@ def format_datetime(dt_str: str) -> str:
     if not dt_str:
         return datetime.utcnow().isoformat() + 'Z'
     try:
-        # Parse SQLite datetime format and convert to ISO
+        # If it's already a datetime object from PostgreSQL
+        if isinstance(dt_str, datetime):
+            return dt_str.isoformat() + 'Z'
+        # Parse PostgreSQL datetime format and convert to ISO
         dt = datetime.strptime(dt_str, '%Y-%m-%d %H:%M:%S')
         return dt.isoformat() + 'Z'
     except:

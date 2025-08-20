@@ -31,10 +31,10 @@ async def get_notifications(
                 NULL as comment_id,
                 NULL as comment_content,
                 f.created_at as created_at,
-                (SELECT COUNT(*) FROM follows WHERE follower_id = ? AND following_id = f.follower_id) as is_following
+                (SELECT COUNT(*) FROM follows WHERE follower_id = %s AND following_id = f.follower_id) as is_following
             FROM follows f
             JOIN users u ON f.follower_id = u.id
-            WHERE f.following_id = ?
+            WHERE f.following_id = %s
             
             UNION ALL
             
@@ -51,7 +51,7 @@ async def get_notifications(
             FROM likes l
             JOIN users u ON l.user_id = u.id
             JOIN posts p ON l.post_id = p.id
-            WHERE p.user_id = ? AND l.user_id != ?
+            WHERE p.user_id = %s AND l.user_id != %s
             
             UNION ALL
             
@@ -68,10 +68,10 @@ async def get_notifications(
             FROM comments c
             JOIN users u ON c.user_id = u.id
             JOIN posts p ON c.post_id = p.id
-            WHERE p.user_id = ? AND c.user_id != ?
-        )
+            WHERE p.user_id = %s AND c.user_id != %s
+        ) AS notifications_union
         ORDER BY created_at DESC
-        LIMIT ? OFFSET ?
+        LIMIT %s OFFSET %s
     """
     
     notifications = execute_query(
@@ -116,7 +116,7 @@ async def get_notifications(
         # 좋아요나 댓글 알림인 경우 포스트 이미지 추가
         if notif['post_id']:
             post_image = execute_query(
-                "SELECT image_url FROM post_images WHERE post_id = ? ORDER BY position LIMIT 1",
+                "SELECT image_url FROM post_images WHERE post_id = %s ORDER BY position LIMIT 1",
                 (notif['post_id'],),
                 fetch_one=True
             )
@@ -147,20 +147,20 @@ async def get_notification_count(
     query = """
         SELECT COUNT(*) as count FROM (
             SELECT created_at FROM follows 
-            WHERE following_id = ? AND created_at > ?
+            WHERE following_id = %s AND created_at > %s
             
             UNION ALL
             
             SELECT l.created_at FROM likes l
             JOIN posts p ON l.post_id = p.id
-            WHERE p.user_id = ? AND l.user_id != ? AND l.created_at > ?
+            WHERE p.user_id = %s AND l.user_id != %s AND l.created_at > %s
             
             UNION ALL
             
             SELECT c.created_at FROM comments c
             JOIN posts p ON c.post_id = p.id
-            WHERE p.user_id = ? AND c.user_id != ? AND c.created_at > ?
-        )
+            WHERE p.user_id = %s AND c.user_id != %s AND c.created_at > %s
+        ) AS notifications_count
     """
     
     result = execute_query(

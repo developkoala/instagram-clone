@@ -68,7 +68,7 @@ class ConnectionManager:
         
         # 해당 사용자를 팔로우하는 모든 사용자에게 알림
         followers = execute_query(
-            "SELECT follower_id FROM follows WHERE following_id = ?",
+            "SELECT follower_id FROM follows WHERE following_id = %s",
             (user_id,)
         )
         
@@ -169,7 +169,7 @@ async def websocket_endpoint(
                     # DB에 메시지 저장
                     execute_query(
                         """INSERT INTO messages (id, sender_id, receiver_id, content, created_at) 
-                           VALUES (hex(randomblob(16)), ?, ?, ?, datetime('now'))""",
+                           VALUES (hex(randomblob(16)), %s, %s, %s, datetime('now'))""",
                         (user_id, room_id, text)
                     )
                     # 실시간 전송

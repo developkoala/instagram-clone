@@ -59,7 +59,10 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
 
     try {
-      const wsUrl = `ws://127.0.0.1:8000/api/ws/connect?token=${encodeURIComponent(token)}`;
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://muksta.com/api';
+      const wsProtocol = apiUrl.startsWith('https') ? 'wss' : 'ws';
+      const wsHost = apiUrl.replace(/^https?:\/\//, '').replace(/\/api$/, '');
+      const wsUrl = `${wsProtocol}://${wsHost}/api/ws/connect?token=${encodeURIComponent(token)}`;
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 

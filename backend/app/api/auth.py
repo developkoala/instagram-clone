@@ -35,7 +35,7 @@ async def register(request: RegisterRequest):
     
     query = """
         INSERT INTO users (id, email, username, hashed_password, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?)
+        VALUES (%s, %s, %s, %s, %s, %s)
     """
     now = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
     execute_query(query, (

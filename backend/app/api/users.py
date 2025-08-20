@@ -15,7 +15,7 @@ from app.utils.security import verify_password, get_password_hash
 from datetime import datetime
 import os
 import shutil
-from PIL import Image
+from PIL import Image, ImageOps
 from app.utils.security import generate_uuid
 
 router = APIRouter(prefix="/api/users", tags=["Users"])
@@ -25,17 +25,17 @@ async def get_current_user_profile(current_user: dict = Depends(get_current_user
     """현재 사용자 프로필 조회"""
     # 팔로워/팔로잉 수 조회
     followers_count = execute_query(
-        "SELECT COUNT(*) as count FROM follows WHERE following_id = ?",
+        "SELECT COUNT(*) as count FROM follows WHERE following_id = %s",
         (current_user['id'],), fetch_one=True
     )['count']
     
     following_count = execute_query(
-        "SELECT COUNT(*) as count FROM follows WHERE follower_id = ?",
+        "SELECT COUNT(*) as count FROM follows WHERE follower_id = %s",
         (current_user['id'],), fetch_one=True
     )['count']
     
     posts_count = execute_query(
-        "SELECT COUNT(*) as count FROM posts WHERE user_id = ?",
+        "SELECT COUNT(*) as count FROM posts WHERE user_id = %s",
         (current_user['id'],), fetch_one=True
     )['count']
     
@@ -71,21 +71,21 @@ async def get_user_suggestions(
                 u.id, u.username, u.profile_picture, u.bio,
                 (SELECT COUNT(*) FROM follows WHERE following_id = u.id) as followers_count
             FROM users u
-            WHERE u.id != ?
+            WHERE u.id != %s
               AND u.id NOT IN (
-                SELECT following_id FROM follows WHERE follower_id = ?
+                SELECT following_id FROM follows WHERE follower_id = %s
               )
             ORDER BY followers_count DESC, u.created_at DESC
-            LIMIT ? OFFSET ?
+            LIMIT %s OFFSET %s
         """
         users = execute_query(base_query, (current_user['id'], current_user['id'], limit, offset))
         
         count_query = """
             SELECT COUNT(*) as count
             FROM users u
-            WHERE u.id != ?
+            WHERE u.id != %s
               AND u.id NOT IN (
-                SELECT following_id FROM follows WHERE follower_id = ?
+                SELECT following_id FROM follows WHERE follower_id = %s
               )
         """
         total = execute_query(count_query, (current_user['id'], current_user['id']), fetch_one=True)['count']
@@ -97,7 +97,7 @@ async def get_user_suggestions(
                 (SELECT COUNT(*) FROM follows WHERE following_id = u.id) as followers_count
             FROM users u
             ORDER BY followers_count DESC, u.created_at DESC
-            LIMIT ? OFFSET ?
+            LIMIT %s OFFSET %s
         """
         users = execute_query(base_query, (limit, offset))
         
@@ -116,6 +116,52 @@ async def get_user_suggestions(
         "total": total,
     }
 
+@router.get("/search")
+async def search_users(
+    q: str = Query(..., min_length=1, description="검색어"),
+    limit: int = Query(10, ge=1, le=50)
+):
+    """사용자 검색"""
+    search_pattern = f"%{q}%"
+    
+    query = """
+        SELECT id, username, profile_picture, bio,
+               (SELECT COUNT(*) FROM follows WHERE following_id = users.id) as followers_count
+        FROM users
+        WHERE username LIKE %s
+        ORDER BY 
+            CASE 
+                WHEN username LIKE %s THEN 0
+                WHEN username LIKE %s THEN 1
+                ELSE 2
+            END,
+            followers_count DESC
+        LIMIT %s
+    """
+    
+    # 정확한 매칭을 우선순위로 정렬
+    exact_pattern = q
+    start_pattern = f"{q}%"
+    
+    users = execute_query(
+        query, 
+        (search_pattern, exact_pattern, start_pattern, limit)
+    )
+    
+    result = []
+    for user in users:
+        user_data = {
+            "id": user['id'],
+            "username": user['username'],
+            "profile_picture": user['profile_picture'],
+            "bio": user['bio'],
+            "followers_count": user['followers_count']
+        }
+        
+        result.append(user_data)
+    
+    return {"users": result, "count": len(result)}
+
 @router.get("/{username}", response_model=UserProfile)
 async def get_user_profile(username: str, current_user: Optional[dict] = Depends(get_current_user_optional)):
     """특정 사용자 프로필 조회"""
@@ -128,17 +174,17 @@ async def get_user_profile(username: str, current_user: Optional[dict] = Depends
     
     # 팔로워/팔로잉 수 조회
     followers_count = execute_query(
-        "SELECT COUNT(*) as count FROM follows WHERE following_id = ?",
+        "SELECT COUNT(*) as count FROM follows WHERE following_id = %s",
         (user['id'],), fetch_one=True
     )['count']
     
     following_count = execute_query(
-        "SELECT COUNT(*) as count FROM follows WHERE follower_id = ?",
+        "SELECT COUNT(*) as count FROM follows WHERE follower_id = %s",
         (user['id'],), fetch_one=True
     )['count']
     
     posts_count = execute_query(
-        "SELECT COUNT(*) as count FROM posts WHERE user_id = ?",
+        "SELECT COUNT(*) as count FROM posts WHERE user_id = %s",
         (user['id'],), fetch_one=True
     )['count']
     
@@ -169,23 +215,23 @@ async def update_profile(
     params = []
     
     if update_data.bio is not None:
-        updates.append("bio = ?")
+        updates.append("bio = %s")
         params.append(update_data.bio)
     
     if update_data.website is not None:
-        updates.append("website = ?")
+        updates.append("website = %s")
         params.append(update_data.website)
     
     if update_data.email is not None:
-        updates.append("email = ?")
+        updates.append("email = %s")
         params.append(update_data.email)
     
     if updates:
-        updates.append("updated_at = ?")
+        updates.append("updated_at = %s")
         params.append(datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
         params.append(current_user['id'])
         
-        query = f"UPDATE users SET {', '.join(updates)} WHERE id = ?"
+        query = f"UPDATE users SET {', '.join(updates)} WHERE id = %s"
         execute_query(query, tuple(params))
     
     # 업데이트된 사용자 정보 반환
@@ -228,9 +274,15 @@ async def upload_profile_picture(
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
     
-    # 이미지 리사이징 (정사각형으로)
+    # 이미지 열기 및 EXIF 오리엔테이션 처리
     img = Image.open(file_path)
-    img = img.convert('RGB')
+    
+    # EXIF 데이터에 따라 이미지 회전 (모바일 카메라 이슈 해결)
+    img = ImageOps.exif_transpose(img)
+    
+    # RGB로 변환
+    if img.mode != 'RGB':
+        img = img.convert('RGB')
     
     # 정사각형으로 크롭
     width, height = img.size
@@ -252,7 +304,7 @@ async def upload_profile_picture(
     
     # DB 업데이트
     profile_picture_url = f"/uploads/profiles/{file_name}"
-    query = "UPDATE users SET profile_picture = ?, updated_at = ? WHERE id = ?"
+    query = "UPDATE users SET profile_picture = %s, updated_at = %s WHERE id = %s"
     execute_query(query, (
         profile_picture_url,
         datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),
@@ -290,8 +342,9 @@ async def follow_user(user_id: str, current_user: dict = Depends(get_current_use
         )
     
     # 팔로우 추가
-    query = "INSERT INTO follows (follower_id, following_id, created_at) VALUES (?, ?, ?)"
+    query = "INSERT INTO follows (id, follower_id, following_id, created_at) VALUES (%s, %s, %s, %s)"
     execute_query(query, (
+        generate_uuid(),
         current_user['id'],
         user_id,
         datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
@@ -313,7 +366,7 @@ async def unfollow_user(user_id: str, current_user: dict = Depends(get_current_u
         )
     
     # 팔로우 삭제
-    query = "DELETE FROM follows WHERE follower_id = ? AND following_id = ?"
+    query = "DELETE FROM follows WHERE follower_id = %s AND following_id = %s"
     execute_query(query, (current_user['id'], user_id))
     
     return {
@@ -344,9 +397,9 @@ async def get_followers(
         SELECT u.id, u.username, u.profile_picture
         FROM users u
         JOIN follows f ON u.id = f.follower_id
-        WHERE f.following_id = ?
+        WHERE f.following_id = %s
         ORDER BY f.created_at DESC
-        LIMIT ? OFFSET ?
+        LIMIT %s OFFSET %s
     """
     followers = execute_query(query, (user['id'], limit, offset))
     
@@ -356,7 +409,7 @@ async def get_followers(
     
     # 전체 개수
     total = execute_query(
-        "SELECT COUNT(*) as count FROM follows WHERE following_id = ?",
+        "SELECT COUNT(*) as count FROM follows WHERE following_id = %s",
         (user['id'],), fetch_one=True
     )['count']
     
@@ -389,9 +442,9 @@ async def get_following(
         SELECT u.id, u.username, u.profile_picture
         FROM users u
         JOIN follows f ON u.id = f.following_id
-        WHERE f.follower_id = ?
+        WHERE f.follower_id = %s
         ORDER BY f.created_at DESC
-        LIMIT ? OFFSET ?
+        LIMIT %s OFFSET %s
     """
     following = execute_query(query, (user['id'], limit, offset))
     
@@ -401,7 +454,7 @@ async def get_following(
     
     # 전체 개수
     total = execute_query(
-        "SELECT COUNT(*) as count FROM follows WHERE follower_id = ?",
+        "SELECT COUNT(*) as count FROM follows WHERE follower_id = %s",
         (user['id'],), fetch_one=True
     )['count']
     
@@ -411,52 +464,6 @@ async def get_following(
         "page": page,
         "has_next": offset + limit < total
     }
-
-@router.get("/search")
-async def search_users(
-    q: str = Query(..., min_length=1, description="검색어"),
-    limit: int = Query(10, ge=1, le=50)
-):
-    """사용자 검색"""
-    search_pattern = f"%{q}%"
-    
-    query = """
-        SELECT id, username, profile_picture, bio,
-               (SELECT COUNT(*) FROM follows WHERE following_id = users.id) as followers_count
-        FROM users
-        WHERE username LIKE ?
-        ORDER BY 
-            CASE 
-                WHEN username LIKE ? THEN 0
-                WHEN username LIKE ? THEN 1
-                ELSE 2
-            END,
-            followers_count DESC
-        LIMIT ?
-    """
-    
-    # 정확한 매칭을 우선순위로 정렬
-    exact_pattern = q
-    start_pattern = f"{q}%"
-    
-    users = execute_query(
-        query, 
-        (search_pattern, exact_pattern, start_pattern, limit)
-    )
-    
-    result = []
-    for user in users:
-        user_data = {
-            "id": user['id'],
-            "username": user['username'],
-            "profile_picture": user['profile_picture'],
-            "bio": user['bio'],
-            "followers_count": user['followers_count']
-        }
-        
-        result.append(user_data)
-    
-    return {"users": result, "count": len(result)}
 
 @router.post("/change-password")
 async def change_password(
@@ -475,7 +482,7 @@ async def change_password(
     new_hashed = get_password_hash(request.new_password)
     
     # DB 업데이트
-    query = "UPDATE users SET hashed_password = ?, updated_at = ? WHERE id = ?"
+    query = "UPDATE users SET hashed_password = %s, updated_at = %s WHERE id = %s"
     execute_query(query, (
         new_hashed,
         datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),
