@@ -4,5 +4,6 @@ python-jose[cryptography]
 passlib[bcrypt]
 python-multipart
 Pillow
-pydantic
+pydantic[email]
 python-dotenv
+email-validator
