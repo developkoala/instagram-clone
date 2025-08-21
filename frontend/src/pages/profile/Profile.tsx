@@ -20,6 +20,7 @@ const Profile: React.FC = () => {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [isFollowing, setIsFollowing] = useState(false);
   const [updateKey, setUpdateKey] = useState(0);
+  const [loadingPost, setLoadingPost] = useState(false);
 
   const isOwnProfile = username === authUser?.username;
 
@@ -295,8 +296,22 @@ const Profile: React.FC = () => {
             {userPosts.map((post) => (
               <button
                 key={post.id}
-                onClick={() => setSelectedPost(post)}
+                onClick={async () => {
+                  setLoadingPost(true);
+                  try {
+                    // Fetch full post data with is_liked status
+                    const fullPost = await postService.getPostById(post.id);
+                    setSelectedPost(fullPost);
+                  } catch (error) {
+                    console.error('Failed to load post details:', error);
+                    // Fallback to the simplified post if fetch fails
+                    setSelectedPost(post);
+                  } finally {
+                    setLoadingPost(false);
+                  }
+                }}
                 className="relative aspect-square overflow-hidden group cursor-pointer"
+                disabled={loadingPost}
               >
                 <img
                   src={getImageUrl(post.images[0].image_url)}
