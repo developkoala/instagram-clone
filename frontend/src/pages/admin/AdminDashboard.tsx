@@ -1,18 +1,49 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { adminService } from '../../services/admin.service';
 import { useToast } from '../../hooks/useToast';
 import { Users, FileText, Heart, MessageCircle, LogOut, UserX, Trash2 } from 'lucide-react';
 
+interface User {
+  id: string;
+  username: string;
+  email: string;
+  created_at: string;
+}
+
+interface DayCount {
+  day: string;
+  count: number;
+}
+
+interface Stats {
+  totals: {
+    users: number;
+    posts: number;
+    likes: number;
+    comments: number;
+  };
+  recent: {
+    users: User[];
+  };
+  daily: {
+    users: DayCount[];
+  };
+}
+
 const AdminDashboard: React.FC = () => {
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { showToast } = useToast();
 
-  useEffect(() => {
+  const checkAuthAndLoadStatsCallback = useCallback(() => {
     checkAuthAndLoadStats();
   }, []);
+
+  useEffect(() => {
+    checkAuthAndLoadStatsCallback();
+  }, [checkAuthAndLoadStatsCallback]);
 
   const checkAuthAndLoadStats = async () => {
     const token = localStorage.getItem('admin_access_token');
@@ -24,8 +55,8 @@ const AdminDashboard: React.FC = () => {
     try {
       const data = await adminService.getStats();
       setStats(data);
-    } catch (error: any) {
-      if (error.response?.status === 401) {
+    } catch (error) {
+      if ((error as any).response?.status === 401) {
         localStorage.removeItem('admin_access_token');
         navigate('/admin');
         showToast('관리자 인증이 만료되었습니다.', 'error');
@@ -166,7 +197,7 @@ const AdminDashboard: React.FC = () => {
             </div>
             <div className="p-6">
               <div className="space-y-3">
-                {(stats?.recent?.users || []).map((user: any) => (
+                {(stats?.recent?.users || []).map((user) => (
                   <div key={user.id} className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-gray-900">{user.username}</p>
@@ -187,7 +218,7 @@ const AdminDashboard: React.FC = () => {
             </div>
             <div className="p-6">
               <div className="space-y-3">
-                {(stats?.daily?.users || []).map((day: any) => (
+                {(stats?.daily?.users || []).map((day) => (
                   <div key={day.day} className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">{day.day}</span>
                     <span className="text-sm font-semibold text-gray-900">{day.count}명</span>

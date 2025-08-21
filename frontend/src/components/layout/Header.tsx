@@ -21,7 +21,7 @@ const Header: React.FC = () => {
   // 알림 구독
   useEffect(() => {
     if (user) {
-      const handleNotification = (_notification: { notification_type: 'follow' | 'like' | 'comment'; user_id: string; [key: string]: unknown }) => {
+      const handleNotification = () => {
         setHasNewNotification(true);
       };
 

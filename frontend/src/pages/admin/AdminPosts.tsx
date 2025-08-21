@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { adminService } from '../../services/admin.service';
 import { useToast } from '../../hooks/useToast';
@@ -24,13 +24,21 @@ const AdminPosts: React.FC = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
 
-  useEffect(() => {
+  const checkAuthCallback = useCallback(() => {
     checkAuth();
   }, []);
 
-  useEffect(() => {
+  const loadPostsCallback = useCallback(() => {
     loadPosts();
   }, [currentPage]);
+
+  useEffect(() => {
+    checkAuthCallback();
+  }, [checkAuthCallback]);
+
+  useEffect(() => {
+    loadPostsCallback();
+  }, [loadPostsCallback]);
 
   const checkAuth = () => {
     const token = localStorage.getItem('admin_access_token');
@@ -47,8 +55,8 @@ const AdminPosts: React.FC = () => {
       setPosts(data.posts);
       setHasNext(data.has_next);
       setTotalPosts(data.total);
-    } catch (error: any) {
-      if (error.response?.status === 401) {
+    } catch (error) {
+      if ((error as any).response?.status === 401) {
         localStorage.removeItem('admin_access_token');
         navigate('/admin');
         showToast('관리자 인증이 만료되었습니다.', 'error');

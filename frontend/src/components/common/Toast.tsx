@@ -18,6 +18,7 @@ const Toasts: React.FC = () => {
     // 제거된 토스트 처리
     const currentToastIds = toasts.map(t => t.id);
     setVisibleToasts(prev => prev.filter(id => currentToastIds.includes(id)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [toasts]);
 
   const getIcon = (type: string) => {
