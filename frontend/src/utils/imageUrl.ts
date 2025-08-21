@@ -14,13 +14,14 @@ export const getImageUrl = (url: string | null | undefined): string | undefined 
   }
   
   // 상대 경로인 경우 (/uploads/... 등)
-  const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:8000';
-  const fullUrl = `${baseUrl}${url}`;
-  
-  // 프로필 이미지의 경우 캐시 무효화를 위해 타임스탬프 추가
-  if (url.includes('/uploads/profiles/')) {
-    return `${fullUrl}?t=${Date.now()}`;
+  // HTTPS 환경에서는 현재 origin 사용, 아니면 상대 경로 그대로 반환
+  if (typeof window !== 'undefined') {
+    // 프로필 이미지의 경우 캐시 무효화를 위해 타임스탬프 추가
+    if (url.includes('/uploads/profiles/')) {
+      return `${url}?t=${Date.now()}`;
+    }
+    return url;
   }
   
-  return fullUrl;
+  return url;
 };

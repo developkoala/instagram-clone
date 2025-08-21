@@ -157,18 +157,15 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
 
     try {
-      // WebSocket URL 설정 - 환경 변수 우선 사용
+      // WebSocket URL 설정
       let wsUrl: string;
-      if (import.meta.env.VITE_WS_URL) {
-        // 환경 변수에 WS URL이 명시되어 있으면 사용
-        wsUrl = `${import.meta.env.VITE_WS_URL}/ws/connect?token=${encodeURIComponent(token)}`;
-      } else {
-        // 환경 변수가 없으면 API URL 기반으로 생성
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
-        const wsProtocol = apiUrl.startsWith('https') ? 'wss' : 'ws';
-        const wsHost = apiUrl.replace(/^https?:\/\//, '').replace(/\/api$/, '');
-        wsUrl = `${wsProtocol}://${wsHost}/api/ws/connect?token=${encodeURIComponent(token)}`;
-      }
+      
+      // 현재 페이지의 프로토콜에 따라 ws/wss 결정
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const host = window.location.host;
+      
+      // 상대 경로 기반으로 WebSocket URL 생성
+      wsUrl = `${protocol}//${host}/api/ws/connect?token=${encodeURIComponent(token)}`;
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 
