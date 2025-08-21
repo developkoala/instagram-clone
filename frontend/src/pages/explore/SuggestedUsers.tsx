@@ -1,19 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { userService } from '../../services/user.service';
-import { useAuth } from '../../contexts/AuthContext';
-import { useToast } from '../../contexts/ToastContext';
+import { useAuth } from "../../hooks/useAuth";
+import { useToast } from '../../hooks/useToast';
 import { getImageUrl } from '../../utils/imageUrl';
 import Loading from '../../components/common/Loading';
-
-interface SuggestedUser {
-  id: string;
-  username: string;
-  profile_picture?: string;
-  bio?: string;
-  followers_count: number;
-  is_following: boolean;
-}
+import { SuggestedUser } from '../../types';
 
 const SuggestedUsers: React.FC = () => {
   const navigate = useNavigate();
@@ -21,19 +13,10 @@ const SuggestedUsers: React.FC = () => {
   const { showToast } = useToast();
   const [users, setUsers] = useState<SuggestedUser[]>([]);
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login');
-      return;
-    }
-    loadSuggestedUsers();
-  }, [isAuthenticated]);
-
-  const loadSuggestedUsers = async (isLoadMore = false) => {
+  const loadSuggestedUsers = useCallback(async (isLoadMore = false) => {
     if (isLoadMore) {
       setLoadingMore(true);
     } else {
@@ -52,13 +35,22 @@ const SuggestedUsers: React.FC = () => {
       if (response.users.length < 20) {
         setHasMore(false);
       }
-    } catch (error) {
+    } catch {
       showToast('추천 사용자를 불러오는데 실패했습니다.', 'error');
     } finally {
       setLoading(false);
       setLoadingMore(false);
     }
-  };
+  }, [showToast]);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    loadSuggestedUsers();
+  }, [isAuthenticated, loadSuggestedUsers, navigate]);
+
 
   const handleFollowUser = async (userId: string, username: string) => {
     try {
@@ -72,14 +64,13 @@ const SuggestedUsers: React.FC = () => {
       if (users.length <= 5 && hasMore) {
         loadSuggestedUsers(true);
       }
-    } catch (error) {
+    } catch {
       showToast('팔로우에 실패했습니다.', 'error');
     }
   };
 
   const handleLoadMore = () => {
     if (!loadingMore && hasMore) {
-      setPage(prev => prev + 1);
       loadSuggestedUsers(true);
     }
   };

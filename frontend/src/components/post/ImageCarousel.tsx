@@ -33,7 +33,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
         src={getImageUrl(images[currentIndex].image_url)}
         alt=""
         className="w-full h-full object-contain"
-        onError={(e) => {
+        onError={() => {
           // 이미지 로드 실패 시 조용히 처리 (외부 URL 문제일 수 있음)
         }}
       />

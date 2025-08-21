@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { adminService } from '../../services/admin.service';
-import { useToast } from '../../contexts/ToastContext';
+import { useToast } from '../../hooks/useToast';
 import { Users, FileText, Heart, MessageCircle, LogOut, UserX, Trash2 } from 'lucide-react';
 
 const AdminDashboard: React.FC = () => {

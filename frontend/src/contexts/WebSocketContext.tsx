@@ -1,17 +1,43 @@
-import React, { createContext, useContext, useEffect, useState, useRef, useCallback } from 'react';
-import { useAuth } from './AuthContext';
-import { useToast } from './ToastContext';
+import React, { createContext, useEffect, useState, useRef, useCallback } from 'react';
+import { useAuth } from "../hooks/useAuth";
+import { useToast } from '../hooks/useToast';
+
+interface NotificationData {
+  notification_type: 'follow' | 'like' | 'comment';
+  user_id: string;
+  [key: string]: unknown;
+}
+
+interface ChatMessageData {
+  message: {
+    sender?: {
+      username: string;
+    };
+    content: string;
+    is_own: boolean;
+  };
+  conversation_id: string;
+  [key: string]: unknown;
+}
+
+interface OnlineStatusData {
+  user_id: string;
+  is_online: boolean;
+  [key: string]: unknown;
+}
+
+type MessageData = Record<string, unknown>;
 
 interface WebSocketContextType {
   isConnected: boolean;
   onlineUsers: string[];
-  sendMessage: (type: string, data: any) => void;
-  subscribeToNotifications: (callback: (notification: any) => void) => void;
-  unsubscribeFromNotifications: (callback: (notification: any) => void) => void;
-  subscribeToChatMessage: (callback: (message: any) => void) => void;
-  unsubscribeFromChatMessage: (callback: (message: any) => void) => void;
-  subscribeToOnlineStatus: (callback: (status: any) => void) => void;
-  unsubscribeFromOnlineStatus: (callback: (status: any) => void) => void;
+  sendMessage: (type: string, data: MessageData) => void;
+  subscribeToNotifications: (callback: (notification: NotificationData) => void) => void;
+  unsubscribeFromNotifications: (callback: (notification: NotificationData) => void) => void;
+  subscribeToChatMessage: (callback: (message: ChatMessageData) => void) => void;
+  unsubscribeFromChatMessage: (callback: (message: ChatMessageData) => void) => void;
+  subscribeToOnlineStatus: (callback: (status: OnlineStatusData) => void) => void;
+  unsubscribeFromOnlineStatus: (callback: (status: OnlineStatusData) => void) => void;
   joinChatRoom: (roomId: string) => void;
   leaveChatRoom: (roomId: string) => void;
   sendChatMessage: (roomId: string, message: string) => void;
@@ -20,31 +46,103 @@ interface WebSocketContextType {
   activeConversationId: string | null;
 }
 
-const WebSocketContext = createContext<WebSocketContextType | undefined>(undefined);
-
-export const useWebSocket = () => {
-  const context = useContext(WebSocketContext);
-  if (!context) {
-    throw new Error('useWebSocket must be used within a WebSocketProvider');
-  }
-  return context;
-};
+export const WebSocketContext = createContext<WebSocketContextType | undefined>(undefined);
 
 export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const { showToast } = useToast();
   const [isConnected, setIsConnected] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const reconnectTimeoutRef = useRef<number | null>(null);
   const reconnectAttemptsRef = useRef(0);
-  const pingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const pingIntervalRef = useRef<number | null>(null);
   
   // 이벤트 리스너 관리
-  const notificationListeners = useRef<Set<(notification: any) => void>>(new Set());
-  const chatListeners = useRef<Set<(message: any) => void>>(new Set());
-  const onlineStatusListeners = useRef<Set<(status: any) => void>>(new Set());
+  const notificationListeners = useRef<Set<(notification: NotificationData) => void>>(new Set());
+  const chatListeners = useRef<Set<(message: ChatMessageData) => void>>(new Set());
+  const onlineStatusListeners = useRef<Set<(status: OnlineStatusData) => void>>(new Set());
+
+  // 메시지 처리
+  const handleMessage = useCallback((data: MessageData) => {
+    // console.log('🌐 WebSocket raw message received:', data);
+    
+    switch (data.type) {
+      case 'initial_data':
+        setOnlineUsers(data.online_users as string[] || []);
+        break;
+        
+      case 'online_status':
+        // 온라인 상태 변경 알림
+        onlineStatusListeners.current.forEach(listener => listener(data as OnlineStatusData));
+        if (data.is_online) {
+          setOnlineUsers(prev => [...new Set([...prev, data.user_id as string])]);
+        } else {
+          setOnlineUsers(prev => prev.filter(id => id !== data.user_id));
+        }
+        break;
+        
+      case 'notification':
+        // 실시간 알림
+        notificationListeners.current.forEach(listener => listener(data as NotificationData));
+        // 토스트 메시지 표시
+        if (data.notification_type === 'follow') {
+          showToast('새로운 팔로워가 있습니다!', 'info');
+        } else if (data.notification_type === 'like') {
+          showToast('누군가 게시물을 좋아합니다!', 'info');
+        } else if (data.notification_type === 'comment') {
+          showToast('새로운 댓글이 달렸습니다!', 'info');
+        }
+        break;
+        
+      case 'chat_message':
+      case 'new_message': {
+        // 채팅 메시지
+        // console.log('📨 Forwarding chat message to listeners:', chatListeners.current.size, 'listeners');
+        chatListeners.current.forEach(listener => listener(data as ChatMessageData));
+        
+        // 새 메시지 토스트 알림 
+        // 조건: 1) 본인이 보낸 메시지가 아님 
+        //      2) 현재 활성 대화가 아니거나 활성 대화가 없을 때
+        const chatData = data as ChatMessageData;
+        if (chatData.message && !chatData.message.is_own) {
+          if (activeConversationId !== chatData.conversation_id) {
+            const senderName = chatData.message.sender?.username || '알 수 없는 사용자';
+            const messagePreview = chatData.message.content?.length > 50 
+              ? chatData.message.content.substring(0, 50) + '...' 
+              : chatData.message.content;
+            
+            // 토스트 클릭 시 해당 대화로 이동
+            const handleToastClick = () => {
+              // 대화 상대의 username으로 메시지 페이지 이동
+              window.location.href = `/messages?user=${chatData.message.sender?.username}`;
+            };
+            
+            showToast(
+              `💬 ${senderName}: ${messagePreview}`,
+              'info',
+              5000, // 5초 동안 표시
+              handleToastClick
+            );
+          }
+        }
+        break;
+      }
+        
+      case 'user_typing':
+        // 타이핑 상태
+        chatListeners.current.forEach(listener => listener(data as ChatMessageData));
+        break;
+        
+      case 'pong':
+        // Ping-Pong 응답
+        break;
+        
+      default:
+        // console.log('❓ Unknown message type:', data.type, data);
+    }
+  }, [showToast, activeConversationId]);
 
   // 웹소켓 연결
   const connect = useCallback(() => {
@@ -114,88 +212,10 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     } catch (error) {
       console.error('Failed to connect WebSocket:', error);
     }
-  }, [isAuthenticated]);
-
-  // 메시지 처리
-  const handleMessage = useCallback((data: any) => {
-    // console.log('🌐 WebSocket raw message received:', data);
-    
-    switch (data.type) {
-      case 'initial_data':
-        setOnlineUsers(data.online_users || []);
-        break;
-        
-      case 'online_status':
-        // 온라인 상태 변경 알림
-        onlineStatusListeners.current.forEach(listener => listener(data));
-        if (data.is_online) {
-          setOnlineUsers(prev => [...new Set([...prev, data.user_id])]);
-        } else {
-          setOnlineUsers(prev => prev.filter(id => id !== data.user_id));
-        }
-        break;
-        
-      case 'notification':
-        // 실시간 알림
-        notificationListeners.current.forEach(listener => listener(data));
-        // 토스트 메시지 표시
-        if (data.notification_type === 'follow') {
-          showToast('새로운 팔로워가 있습니다!', 'info');
-        } else if (data.notification_type === 'like') {
-          showToast('누군가 게시물을 좋아합니다!', 'info');
-        } else if (data.notification_type === 'comment') {
-          showToast('새로운 댓글이 달렸습니다!', 'info');
-        }
-        break;
-        
-      case 'chat_message':
-      case 'new_message':
-        // 채팅 메시지
-        // console.log('📨 Forwarding chat message to listeners:', chatListeners.current.size, 'listeners');
-        chatListeners.current.forEach(listener => listener(data));
-        
-        // 새 메시지 토스트 알림 
-        // 조건: 1) 본인이 보낸 메시지가 아님 
-        //      2) 현재 활성 대화가 아니거나 활성 대화가 없을 때
-        if (data.message && !data.message.is_own) {
-          if (activeConversationId !== data.conversation_id) {
-            const senderName = data.message.sender?.username || '알 수 없는 사용자';
-            const messagePreview = data.message.content?.length > 50 
-              ? data.message.content.substring(0, 50) + '...' 
-              : data.message.content;
-            
-            // 토스트 클릭 시 해당 대화로 이동
-            const handleToastClick = () => {
-              // 대화 상대의 username으로 메시지 페이지 이동
-              window.location.href = `/messages?user=${data.message.sender?.username}`;
-            };
-            
-            showToast(
-              `💬 ${senderName}: ${messagePreview}`,
-              'info',
-              5000, // 5초 동안 표시
-              handleToastClick
-            );
-          }
-        }
-        break;
-        
-      case 'user_typing':
-        // 타이핑 상태
-        chatListeners.current.forEach(listener => listener(data));
-        break;
-        
-      case 'pong':
-        // Ping-Pong 응답
-        break;
-        
-      default:
-        // console.log('❓ Unknown message type:', data.type, data);
-    }
-  }, [showToast, activeConversationId]);
+  }, [isAuthenticated, handleMessage]);
 
   // 메시지 전송
-  const sendMessage = useCallback((type: string, data: any) => {
+  const sendMessage = useCallback((type: string, data: MessageData) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify({ type, ...data }));
     } else {
@@ -224,27 +244,27 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, [sendMessage]);
 
   // 이벤트 구독/해제 함수들
-  const subscribeToNotifications = useCallback((callback: (notification: any) => void) => {
+  const subscribeToNotifications = useCallback((callback: (notification: NotificationData) => void) => {
     notificationListeners.current.add(callback);
   }, []);
 
-  const unsubscribeFromNotifications = useCallback((callback: (notification: any) => void) => {
+  const unsubscribeFromNotifications = useCallback((callback: (notification: NotificationData) => void) => {
     notificationListeners.current.delete(callback);
   }, []);
 
-  const subscribeToChatMessage = useCallback((callback: (message: any) => void) => {
+  const subscribeToChatMessage = useCallback((callback: (message: ChatMessageData) => void) => {
     chatListeners.current.add(callback);
   }, []);
 
-  const unsubscribeFromChatMessage = useCallback((callback: (message: any) => void) => {
+  const unsubscribeFromChatMessage = useCallback((callback: (message: ChatMessageData) => void) => {
     chatListeners.current.delete(callback);
   }, []);
 
-  const subscribeToOnlineStatus = useCallback((callback: (status: any) => void) => {
+  const subscribeToOnlineStatus = useCallback((callback: (status: OnlineStatusData) => void) => {
     onlineStatusListeners.current.add(callback);
   }, []);
 
-  const unsubscribeFromOnlineStatus = useCallback((callback: (status: any) => void) => {
+  const unsubscribeFromOnlineStatus = useCallback((callback: (status: OnlineStatusData) => void) => {
     onlineStatusListeners.current.delete(callback);
   }, []);
 

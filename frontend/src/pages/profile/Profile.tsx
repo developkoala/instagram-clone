@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { UserProfile, Post } from '../../types';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from "../../hooks/useAuth";
 import Loading from '../../components/common/Loading';
 import PostModal from '../../components/post/PostModal';
 import { userService } from '../../services/user.service';
@@ -17,7 +17,6 @@ const Profile: React.FC = () => {
   const [userPosts, setUserPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState<'posts'>('posts');
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [isFollowing, setIsFollowing] = useState(false);
   const [updateKey, setUpdateKey] = useState(0);
@@ -40,7 +39,7 @@ const Profile: React.FC = () => {
         profile_picture: response.profile_picture
       });
       
-    } catch (error) {
+    } catch {
       console.error('Failed to upload profile picture:', error);
     }
   };
@@ -65,6 +64,8 @@ const Profile: React.FC = () => {
 
 
   const loadProfile = async () => {
+    if (!username) return;
+    
     try {
       setLoading(true);
       try {
@@ -85,12 +86,12 @@ const Profile: React.FC = () => {
           is_liked: false,
         }));
         setUserPosts(posts);
-      } catch (e) {
+      } catch {
         setError('프로필을 불러오지 못했습니다');
       } finally {
         setLoading(false);
       }
-    } catch (err) {
+    } catch {
       setError('프로필을 불러오지 못했습니다');
       setLoading(false);
     }
@@ -117,7 +118,7 @@ const Profile: React.FC = () => {
             is_following: res.is_following,
           });
         }
-      } catch (e) {
+      } catch {
         // ignore
       }
     })();
@@ -155,7 +156,7 @@ const Profile: React.FC = () => {
                 src={getImageUrl(isOwnProfile ? authUser?.profile_picture : profile.profile_picture)}
                 alt={profile.username}
                 className="w-full h-full object-cover"
-                onError={(e) => {
+                onError={() => {
                   // 이미지 로드 에러 처리
                 }}
               />

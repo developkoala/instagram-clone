@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Send } from 'lucide-react';
 import { userService } from '../../services/user.service';
 import { messageService, Conversation, Message } from '../../services/message.service';
-import { useAuth } from '../../contexts/AuthContext';
-import { useWebSocket } from '../../contexts/WebSocketContext';
-import { useToast } from '../../contexts/ToastContext';
+import { useAuth } from "../../hooks/useAuth";
+import { useWebSocket } from '../../hooks/useWebSocket';
+import { useToast } from '../../hooks/useToast';
 import { getImageUrl } from '../../utils/imageUrl';
 import RelativeTime from '../../components/common/RelativeTime';
 
@@ -106,39 +105,44 @@ const Messages: React.FC = () => {
   selectedConversationRef.current = selectedConversation;
 
   useEffect(() => {
-    const handleNewMessage = (data: any) => {
+    const handleNewMessage = (data: { message: { sender?: { username: string }; content: string; is_own: boolean }; conversation_id: string; [key: string]: unknown }) => {
       // console.log('🔥 WebSocket message received in Messages:', data);
       const currentConversation = selectedConversationRef.current;
       // console.log('📍 Current conversation ID:', currentConversation?.id);
       // console.log('📨 Message conversation ID:', data.conversation_id);
       
-      if (data.type === 'new_message' || data.type === 'chat_message') {
-        // 현재 선택된 대화인 경우 메시지 추가
-        if (currentConversation?.id === data.conversation_id) {
-          // console.log('✅ Adding message to current conversation');
-          // console.log('📝 Message data:', data.message);
-          
-          // 중복 메시지 체크 (같은 ID의 메시지가 이미 있는지 확인)
-          setMessages(prev => {
-            const messageExists = prev.some(msg => msg.id === data.message.id);
-            if (messageExists) {
-              // console.log('⚠️ Message already exists, skipping');
-              return prev;
-            }
-            // console.log('➕ Adding new message to list');
-            return [...prev, data.message];
-          });
-          
-          // 새 메시지 수신 시 스크롤을 맨 아래로
-          setTimeout(scrollToBottom, 100);
-        } else {
-          // console.log('⚠️ Message is for different conversation or no conversation selected');
-        }
+      // 현재 선택된 대화인 경우 메시지 추가
+      if (currentConversation?.id === data.conversation_id) {
+        // console.log('✅ Adding message to current conversation');
+        // console.log('📝 Message data:', data.message);
         
-        // 대화 목록 실시간 업데이트
-        // console.log('📋 Updating conversation list with new message');
-        loadConversations();
+        // 새 메시지 추가
+        setMessages(prev => {
+          const newMessage: Message = {
+            id: Date.now().toString(), // WebSocket data might not have id
+            content: data.message.content,
+            message_type: 'text',
+            is_own: data.message.is_own,
+            is_read: false,
+            created_at: new Date().toISOString(),
+            sender: {
+              id: 'unknown',
+              username: data.message.sender?.username || 'Unknown',
+              profile_picture: undefined // Profile picture not available in WebSocket data
+            }
+          };
+          return [...prev, newMessage];
+        });
+          
+        // 새 메시지 수신 시 스크롤을 맨 아래로
+        setTimeout(scrollToBottom, 100);
+      } else {
+        // console.log('⚠️ Message is for different conversation or no conversation selected');
       }
+      
+      // 대화 목록 실시간 업데이트
+      // console.log('📋 Updating conversation list with new message');
+      loadConversations();
     };
 
     if (user && subscribeToChatMessage) {
@@ -464,7 +468,7 @@ const Messages: React.FC = () => {
                   if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
                     e.preventDefault();
                     if (messageText.trim() && !sending) {
-                      handleSendMessage(e as any);
+                      handleSendMessage(e as React.FormEvent);
                     }
                   }
                 }}

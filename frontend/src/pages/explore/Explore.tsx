@@ -4,7 +4,6 @@ import PostModal from '../../components/post/PostModal';
 import { postService } from '../../services/post.service';
 
 const Explore: React.FC = () => {
-  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [fullPost, setFullPost] = useState<Post | null>(null);
   const [explorePosts, setExplorePosts] = useState<Post[]>([]);
   const [page, setPage] = useState(1);
@@ -85,7 +84,6 @@ const Explore: React.FC = () => {
           <button
             key={post.id}
             onClick={async () => {
-              setSelectedPost(post);
               // 전체 게시글 정보 가져오기
               try {
                 const fullPostData = await postService.getPostById(post.id);
@@ -139,7 +137,6 @@ const Explore: React.FC = () => {
           post={fullPost}
           isOpen={!!fullPost}
           onClose={() => {
-            setSelectedPost(null);
             setFullPost(null);
           }}
         />

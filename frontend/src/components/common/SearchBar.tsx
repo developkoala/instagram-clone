@@ -8,6 +8,7 @@ import { getImageUrl } from '../../utils/imageUrl';
 interface SearchResult {
   id: string;
   username: string;
+  full_name?: string;
   profile_picture: string;
   bio: string;
   followers_count: number;
@@ -128,7 +129,7 @@ const SearchBar: React.FC = () => {
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-sm truncate">{user.username}</p>
                     <p className="text-sm text-instagram-gray truncate">
-                      {user.full_name || user.bio || `팔로워 ${user.followers_count.toLocaleString()}명`}
+                      {user.full_name || 'Instagram 사용자'}
                     </p>
                   </div>
                 </Link>

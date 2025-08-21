@@ -7,9 +7,9 @@ import Loading from '../../components/common/Loading';
 import PostModal from '../../components/post/PostModal';
 import { postService } from '../../services/post.service';
 import { userService } from '../../services/user.service';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from "../../hooks/useAuth";
 import { getImageUrl } from '../../utils/imageUrl';
-import { useToast } from '../../contexts/ToastContext';
+import { useToast } from '../../hooks/useToast';
 
 const Feed: React.FC = () => {
   const { isAuthenticated, user } = useAuth();

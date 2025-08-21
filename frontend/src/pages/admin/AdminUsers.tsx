@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { adminService } from '../../services/admin.service';
-import { useToast } from '../../contexts/ToastContext';
+import { useToast } from '../../hooks/useToast';
 import { ArrowLeft, Search, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface User {

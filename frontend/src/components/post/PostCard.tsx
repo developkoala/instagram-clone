@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Post } from '../../types';
 import ImageCarousel from './ImageCarousel';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from "../../hooks/useAuth";
 import { postService } from '../../services/post.service';
-import { useToast } from '../../contexts/ToastContext';
+import { useToast } from '../../hooks/useToast';
 import LoginPromptModal from '../common/LoginPromptModal';
 import { getImageUrl } from '../../utils/imageUrl';
 
@@ -14,7 +14,7 @@ interface PostCardProps {
   onClick?: () => void;
 }
 
-const PostCard: React.FC<PostCardProps> = ({ post, onUpdate, onClick }) => {
+const PostCard: React.FC<PostCardProps> = ({ post, onClick }) => {
   const [liked, setLiked] = useState(post.is_liked);
   const [likesCount, setLikesCount] = useState(post.likes_count);
   const [showHeart, setShowHeart] = useState(false);
@@ -57,7 +57,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, onUpdate, onClick }) => {
         setShowHeart(true);
         setTimeout(() => setShowHeart(false), 1000);
       }
-    } catch (e) {
+    } catch {
       showToast('요청을 처리하지 못했습니다.', 'error');
     }
   };
@@ -88,7 +88,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, onUpdate, onClick }) => {
       setComment('');
       setCommentsCount(commentsCount + 1);
       showToast('댓글이 작성되었습니다.', 'success');
-    } catch (error) {
+    } catch {
       showToast('댓글 작성에 실패했습니다.', 'error');
     } finally {
       setIsSubmitting(false);

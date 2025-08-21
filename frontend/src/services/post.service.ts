@@ -45,12 +45,12 @@ export const postService = {
     return response.data;
   },
 
-  async getComments(postId: string, page = 1, limit = 20): Promise<{ comments: Array<{ id: string; user: any; content: string; created_at: string }>; total: number; page: number; has_next: boolean }>{
+  async getComments(postId: string, page = 1, limit = 20): Promise<{ comments: Array<{ id: string; user: { id: string; username: string; profile_picture?: string }; content: string; created_at: string }>; total: number; page: number; has_next: boolean }>{
     const response = await publicApi.get(`/posts/${postId}/comments`, { params: { page, limit } });
     return response.data;
   },
 
-  async getSaved(page: number = 1, limit: number = 12): Promise<{ posts: Array<{ id: string; user: any; images: Array<{ image_url: string }>; caption?: string; likes_count: number; is_liked: boolean; is_saved: boolean }>; page: number; has_next: boolean }>{
+  async getSaved(page: number = 1, limit: number = 12): Promise<{ posts: Array<{ id: string; user: { id: string; username: string; profile_picture?: string }; images: Array<{ image_url: string }>; caption?: string; likes_count: number; is_liked: boolean; is_saved: boolean }>; page: number; has_next: boolean }>{
     const response = await api.get('/posts/saved', { params: { page, limit } });
     return response.data;
   },

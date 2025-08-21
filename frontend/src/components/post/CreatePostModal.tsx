@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
 import { X, Image, ArrowLeft, ChevronLeft, ChevronRight, RotateCw } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
 
@@ -19,7 +18,6 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
   const [isProcessing, setIsProcessing] = useState(false);
   const [rotationAngles, setRotationAngles] = useState<number[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const createPostMutation = useMutation({
@@ -47,96 +45,6 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
     },
   });
 
-  // EXIF 방향 정보를 읽는 함수 - 안전한 버전
-  const getImageOrientation = (file: File): Promise<number> => {
-    return new Promise((resolve) => {
-      // 5초 타임아웃 설정
-      const timeout = setTimeout(() => {
-        console.warn('EXIF 읽기 타임아웃');
-        resolve(1); // 타임아웃 시 기본값
-      }, 5000);
-
-      const reader = new FileReader();
-      
-      reader.onload = (e) => {
-        clearTimeout(timeout);
-        try {
-          const arrayBuffer = e.target?.result as ArrayBuffer;
-          if (!arrayBuffer) {
-            resolve(1);
-            return;
-          }
-
-          const view = new DataView(arrayBuffer);
-          
-          // JPEG 파일이 아니면 기본값 반환
-          if (view.getUint16(0, false) !== 0xFFD8) {
-            resolve(1);
-            return;
-          }
-          
-          const length = view.byteLength;
-          let offset = 2;
-          
-          while (offset < length - 12) { // 안전 여유분 추가
-            try {
-              const marker = view.getUint16(offset, false);
-              offset += 2;
-              
-              if (marker === 0xFFE1) {
-                if (offset + 10 >= length) break; // 경계 검사
-                
-                const little = view.getUint16(offset + 8, false) === 0x4949;
-                const exifLength = view.getUint16(offset, false);
-                
-                if (offset + exifLength >= length) break; // 경계 검사
-                
-                offset += exifLength;
-                const tiffOffset = view.getUint32(offset + 4, little) + offset + 6;
-                
-                if (tiffOffset >= length - 2) break; // 경계 검사
-                
-                const count = view.getUint16(tiffOffset, little);
-                
-                for (let i = 0; i < count && i < 50; i++) { // 최대 50개로 제한
-                  const tagOffset = tiffOffset + i * 12 + 2;
-                  
-                  if (tagOffset + 12 >= length) break; // 경계 검사
-                  
-                  if (view.getUint16(tagOffset, little) === 0x0112) {
-                    const orientation = view.getUint16(tagOffset + 8, little);
-                    resolve(orientation);
-                    return;
-                  }
-                }
-              } else if ((marker & 0xFF00) !== 0xFF00) {
-                break;
-              } else {
-                if (offset >= length) break;
-                const segmentLength = view.getUint16(offset, false);
-                offset += segmentLength;
-              }
-            } catch (error) {
-              console.warn('EXIF 파싱 오류:', error);
-              break;
-            }
-          }
-          resolve(1);
-        } catch (error) {
-          console.warn('EXIF 처리 전체 오류:', error);
-          resolve(1);
-        }
-      };
-      
-      reader.onerror = () => {
-        clearTimeout(timeout);
-        console.warn('파일 읽기 오류');
-        resolve(1);
-      };
-      
-      reader.readAsArrayBuffer(file);
-    });
-  };
 
   // 각도로 이미지 회전하는 함수
   const rotateImageByAngle = (file: File, angle: number): Promise<File> => {
@@ -148,7 +56,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
 
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d')!;
-      const img = new Image();
+      const img = document.createElement('img');
       
       img.onload = () => {
         try {
@@ -193,74 +101,6 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
     });
   };
 
-  // 이미지 회전 함수
-  const rotateImage = (file: File, orientation: number): Promise<File> => {
-    return new Promise((resolve) => {
-      if (orientation === 1) {
-        resolve(file); // 회전 불필요
-        return;
-      }
-
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d')!;
-      const img = new Image();
-      
-      img.onload = () => {
-        const { width, height } = img;
-        
-        // 회전에 따른 캔버스 크기 설정
-        if (orientation >= 5 && orientation <= 8) {
-          canvas.width = height;
-          canvas.height = width;
-        } else {
-          canvas.width = width;
-          canvas.height = height;
-        }
-
-        // 회전 변환 적용
-        ctx.save();
-        switch (orientation) {
-          case 2:
-            ctx.transform(-1, 0, 0, 1, width, 0);
-            break;
-          case 3:
-            ctx.transform(-1, 0, 0, -1, width, height);
-            break;
-          case 4:
-            ctx.transform(1, 0, 0, -1, 0, height);
-            break;
-          case 5:
-            ctx.transform(0, 1, 1, 0, 0, 0);
-            break;
-          case 6:
-            // 시계방향 90도 회전 (세로 촬영 시) - 수정
-            ctx.transform(0, 1, -1, 0, height, 0);
-            break;
-          case 7:
-            ctx.transform(0, -1, -1, 0, height, width);
-            break;
-          case 8:
-            // 반시계방향 90도 회전 (세로 촬영 시) - 수정
-            ctx.transform(0, -1, 1, 0, 0, width);
-            break;
-        }
-        
-        ctx.drawImage(img, 0, 0);
-        ctx.restore();
-
-        canvas.toBlob((blob) => {
-          if (blob) {
-            const rotatedFile = new File([blob], file.name, { type: file.type });
-            resolve(rotatedFile);
-          } else {
-            resolve(file);
-          }
-        }, file.type, 0.9);
-      };
-      
-      img.src = URL.createObjectURL(file);
-    });
-  };
 
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement> | Event) => {
@@ -333,7 +173,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
     );
 
     const formData = new FormData();
-    finalFiles.forEach((file, index) => {
+    finalFiles.forEach((file) => {
       formData.append('images', file);
     });
     formData.append('caption', caption);

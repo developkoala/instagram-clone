@@ -3,6 +3,7 @@ export interface User {
   id: string;
   email: string;
   username: string;
+  full_name?: string;
   bio?: string;
   profile_picture?: string;
   website?: string;
@@ -55,6 +56,7 @@ export interface PostImage {
   id: string;
   image_url: string;
   position: number;
+  order_index?: number;
 }
 
 export interface Comment {
@@ -87,5 +89,59 @@ export interface SavedPost {
   user_id: string;
   post_id: string;
   created_at: string;
+  post?: Post;
+}
+
+// Search types
+export interface SearchResult {
+  id: string;
+  username: string;
+  full_name?: string;
+  profile_picture?: string;
+  is_verified?: boolean;
+  is_following?: boolean;
+}
+
+export interface SuggestedUser {
+  id: string;
+  username: string;
+  full_name?: string;
+  bio?: string;
+  profile_picture?: string;
+  is_verified: boolean;
+  is_following: boolean;
+  followers_count: number;
+}
+
+// Message types
+export interface Message {
+  id: string;
+  content: string;
+  is_own: boolean;
+  created_at: string;
+  sender: {
+    username: string;
+    profile_picture?: string;
+  };
+}
+
+export interface Conversation {
+  id: string;
+  participants: User[];
+  last_message?: Message;
+  created_at: string;
+}
+
+// Notification types
+export interface Notification {
+  id: string;
+  type: 'follow' | 'like' | 'comment';
+  user_id: string;
+  target_user_id: string;
+  post_id?: string;
+  comment_id?: string;
+  created_at: string;
+  is_read: boolean;
+  user?: User;
   post?: Post;
 }

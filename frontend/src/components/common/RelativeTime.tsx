@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
 
@@ -23,7 +23,7 @@ const RelativeTime: React.FC<RelativeTimeProps> = ({
 }) => {
   const [relativeTime, setRelativeTime] = useState('');
 
-  const updateTime = () => {
+  const updateTime = useCallback(() => {
     try {
       const dateObj = typeof date === 'string' ? new Date(date) : date;
       const distance = formatDistanceToNow(dateObj, { 
@@ -31,11 +31,11 @@ const RelativeTime: React.FC<RelativeTimeProps> = ({
         addSuffix: false 
       });
       setRelativeTime(distance);
-    } catch (error) {
+    } catch {
       console.error('Invalid date:', date);
       setRelativeTime('');
     }
-  };
+  }, [date]);
 
   useEffect(() => {
     // 초기 시간 설정
@@ -46,7 +46,7 @@ const RelativeTime: React.FC<RelativeTimeProps> = ({
 
     // 컴포넌트 언마운트 시 인터벌 정리
     return () => clearInterval(interval);
-  }, [date, updateInterval]);
+  }, [date, updateInterval, updateTime]);
 
   if (!relativeTime) return null;
 

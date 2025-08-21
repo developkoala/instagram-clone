@@ -2,12 +2,24 @@ import React, { useEffect, useState } from 'react';
 import { Heart, MessageCircle } from 'lucide-react';
 import { Post } from '../../types';
 import { formatDistanceToNow } from '../../utils/dateUtils';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from "../../hooks/useAuth";
 import { postService } from '../../services/post.service';
-import { useToast } from '../../contexts/ToastContext';
+import { useToast } from '../../hooks/useToast';
 import LoginPromptModal from '../common/LoginPromptModal';
 import { getImageUrl } from '../../utils/imageUrl';
 import { useNavigate } from 'react-router-dom';
+
+interface Comment {
+  id: string;
+  user: {
+    username: string;
+    profile_picture?: string;
+  };
+  content: string;
+  created_at: string;
+  likes_count: number;
+  is_liked: boolean;
+}
 
 interface PostModalProps {
   post: Post;
@@ -20,7 +32,7 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
   const [isLiked, setIsLiked] = useState(post.is_liked);
   const [likesCount, setLikesCount] = useState(post.likes_count);
   const [comment, setComment] = useState('');
-  const [comments, setComments] = useState<Array<{ id: string; user: any; content: string; created_at: string }>>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [loginPromptMessage, setLoginPromptMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,8 +42,6 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
   const [forceUpdate, setForceUpdate] = useState(0);
   const { showToast } = useToast();
   const navigate = useNavigate();
-
-  if (!isOpen) return null;
 
   useEffect(() => {
     // 모달이 열릴 때 초기값 설정
@@ -43,8 +53,19 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
     (async () => {
       try {
         const list = await postService.getComments(post.id, 1, 20);
-        setComments(list.comments);
-      } catch {}
+        const transformedComments: Comment[] = list.comments.map(comment => ({
+          ...comment,
+          user: {
+            username: comment.user.username,
+            profile_picture: comment.user.profile_picture
+          },
+          likes_count: 0,
+          is_liked: false
+        }));
+        setComments(transformedComments);
+      } catch {
+        // Comment loading failed - ignore silently
+      }
     })();
   }, [post.id, post.is_liked, post.likes_count]);
 
@@ -93,7 +114,7 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
         setIsLiked(res.is_liked);
         setLikesCount(res.likes_count);
       }
-    } catch (error) {
+    } catch {
       showToast('요청을 처리하지 못했습니다.', 'error');
     }
   };
@@ -116,19 +137,21 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
     try {
       await postService.addComment(post.id, comment);
       // 새 댓글을 리스트에 추가
-      const newComment = {
+      const newComment: Comment = {
         id: Date.now().toString(),
         user: {
-          username: user?.username,
+          username: user?.username || 'Unknown',
           profile_picture: user?.profile_picture
         },
         content: comment,
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
+        likes_count: 0,
+        is_liked: false
       };
       setComments([...comments, newComment]);
       setComment('');
       showToast('댓글이 작성되었습니다.', 'success');
-    } catch (error) {
+    } catch {
       showToast('댓글 작성에 실패했습니다.', 'error');
     } finally {
       setIsSubmitting(false);
@@ -193,6 +216,8 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
     }
   };
 
+  if (!isOpen) return null;
+
   return (
     <>
       {/* Desktop Version */}
@@ -217,7 +242,7 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
               alt={`Post ${currentImageIndex + 1}`}
               className="max-w-full max-h-full object-contain cursor-zoom-in"
               onClick={() => setShowImageZoom(true)}
-              onError={(e) => {
+              onError={() => {
                 // 이미지 로드 실패 시 조용히 처리
               }}
             />
@@ -299,7 +324,7 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
                         showToast('게시물이 삭제되었습니다.', 'success');
                         onClose();
                         window.location.reload();
-                      } catch (error) {
+                      } catch {
                         showToast('게시물 삭제에 실패했습니다.', 'error');
                       }
                     }
@@ -552,7 +577,7 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
                       showToast('게시물이 삭제되었습니다.', 'success');
                       onClose();
                       window.location.reload();
-                    } catch (error) {
+                    } catch {
                       showToast('게시물 삭제에 실패했습니다.', 'error');
                     }
                   }

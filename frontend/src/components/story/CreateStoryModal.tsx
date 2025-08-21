@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 
 interface CreateStoryModalProps {
   isOpen: boolean;
@@ -9,21 +9,11 @@ interface CreateStoryModalProps {
 const CreateStoryModal: React.FC<CreateStoryModalProps> = ({ isOpen, onClose, file: initialFile }) => {
   const [caption, setCaption] = useState('');
   const [uploading, setUploading] = useState(false);
-  const [file, setFile] = useState<File | null>(initialFile);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [file] = useState<File | null>(initialFile);
 
   if (!isOpen) return null;
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-    }
-  };
 
-  const handleSelectFileClick = () => {
-    fileInputRef.current?.click();
-  };
 
   const handleSubmit = async () => {
     setUploading(true);
@@ -43,8 +33,8 @@ const CreateStoryModal: React.FC<CreateStoryModalProps> = ({ isOpen, onClose, fi
     }
   };
 
-  const fileUrl = URL.createObjectURL(file);
-  const isVideo = file.type.startsWith('video/');
+  const fileUrl = file ? URL.createObjectURL(file) : '';
+  const isVideo = file?.type.startsWith('video/') || false;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">

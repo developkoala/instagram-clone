@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { useWebSocket } from '../../contexts/WebSocketContext';
+import { useAuth } from "../../hooks/useAuth";
+import { useWebSocket } from '../../hooks/useWebSocket';
 import CreatePostModal from '../post/CreatePostModal';
 import SearchBar from '../common/SearchBar';
 import { userService } from '../../services/user.service';
@@ -21,18 +21,14 @@ const Header: React.FC = () => {
   // 알림 구독
   useEffect(() => {
     if (user) {
-      const handleNotification = (notification: any) => {
-        if (notification.type === 'notification') {
-          setHasNewNotification(true);
-        }
+      const handleNotification = (_notification: { notification_type: 'follow' | 'like' | 'comment'; user_id: string; [key: string]: unknown }) => {
+        setHasNewNotification(true);
       };
 
-      const handleChatMessage = (message: any) => {
-        if (message.type === 'new_message' || message.type === 'chat_message') {
-          // 현재 활성 대화가 아니고, 본인이 보낸 메시지가 아닐 때만 알림 표시
-          if (message.conversation_id !== activeConversationId && !message.message?.is_own) {
-            setHasNewMessage(true);
-          }
+      const handleChatMessage = (message: { message: { sender?: { username: string }; content: string; is_own: boolean }; conversation_id: string; [key: string]: unknown }) => {
+        // 현재 활성 대화가 아니고, 본인이 보낸 메시지가 아닐 때만 알림 표시
+        if (message.conversation_id !== activeConversationId && !message.message?.is_own) {
+          setHasNewMessage(true);
         }
       };
 

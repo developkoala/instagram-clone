@@ -1,10 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from "../../hooks/useAuth";
 import { ChevronRight, User, Lock, HelpCircle, Info, LogOut, X, Camera } from 'lucide-react';
 import { getImageUrl } from '../../utils/imageUrl';
 import { userService } from '../../services/user.service';
-import { useToast } from '../../contexts/ToastContext';
+import { useToast } from '../../hooks/useToast';
 
 const Settings: React.FC = () => {
   const { user, logout, updateUser } = useAuth();
@@ -98,8 +98,12 @@ const Settings: React.FC = () => {
       });
       setActiveSection(null);
       setActiveModal(null);
-    } catch (error: any) {
-      showToast(error.response?.data?.detail || '비밀번호 변경에 실패했습니다.', 'error');
+    } catch (error: unknown) {
+      const errorMessage = error && typeof error === 'object' && 'response' in error && 
+                           error.response && typeof error.response === 'object' && 'data' in error.response &&
+                           error.response.data && typeof error.response.data === 'object' && 'detail' in error.response.data 
+                           ? error.response.data.detail as string : '비밀번호 변경에 실패했습니다.';
+      showToast(errorMessage, 'error');
       console.error('Failed to change password:', error);
     }
   };

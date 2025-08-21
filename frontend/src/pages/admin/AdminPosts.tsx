@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { adminService } from '../../services/admin.service';
-import { useToast } from '../../contexts/ToastContext';
+import { useToast } from '../../hooks/useToast';
 import { getImageUrl } from '../../utils/imageUrl';
 import { ArrowLeft, Trash2, ChevronLeft, ChevronRight, Heart, MessageCircle } from 'lucide-react';
 

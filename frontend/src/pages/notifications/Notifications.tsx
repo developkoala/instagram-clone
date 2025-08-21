@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from "../../hooks/useAuth";
 import { notificationService, Notification } from '../../services/notification.service';
 import { userService } from '../../services/user.service';
 import { getImageUrl } from '../../utils/imageUrl';
 import Loading from '../../components/common/Loading';
-import { useToast } from '../../contexts/ToastContext';
+import { useToast } from '../../hooks/useToast';
 
 const Notifications: React.FC = () => {
   const { isAuthenticated } = useAuth();
@@ -14,13 +14,7 @@ const Notifications: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [followingStates, setFollowingStates] = useState<{ [key: string]: boolean }>({});
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      loadNotifications();
-    }
-  }, [isAuthenticated]);
-
-  const loadNotifications = async () => {
+  const loadNotifications = useCallback(async () => {
     try {
       const response = await notificationService.getNotifications(1, 50);
       setNotifications(response.notifications);
@@ -39,7 +33,13 @@ const Notifications: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [showToast]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadNotifications();
+    }
+  }, [isAuthenticated, loadNotifications]);
 
   const handleFollowToggle = async (userId: string) => {
     try {

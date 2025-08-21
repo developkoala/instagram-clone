@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useToast } from '../../contexts/ToastContext';
+import { useToast } from '../../hooks/useToast';
 import { CheckCircle, XCircle, MessageCircle, Info, X } from 'lucide-react';
 
 const Toasts: React.FC = () => {
@@ -7,17 +7,17 @@ const Toasts: React.FC = () => {
   const [visibleToasts, setVisibleToasts] = useState<string[]>([]);
 
   useEffect(() => {
-    // 애니메이션을 위한 토스트 표시 관리
-    toasts.forEach(toast => {
-      if (!visibleToasts.includes(toast.id)) {
-        setTimeout(() => {
-          setVisibleToasts(prev => [...prev, toast.id]);
-        }, 10);
-      }
+    // 새로운 토스트 추가 처리
+    const newToastIds = toasts.map(t => t.id).filter(id => !visibleToasts.includes(id));
+    newToastIds.forEach(id => {
+      setTimeout(() => {
+        setVisibleToasts(prev => [...prev, id]);
+      }, 10);
     });
     
     // 제거된 토스트 처리
-    setVisibleToasts(prev => prev.filter(id => toasts.some(t => t.id === id)));
+    const currentToastIds = toasts.map(t => t.id);
+    setVisibleToasts(prev => prev.filter(id => currentToastIds.includes(id)));
   }, [toasts]);
 
   const getIcon = (type: string) => {

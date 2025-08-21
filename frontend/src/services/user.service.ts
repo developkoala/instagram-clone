@@ -1,5 +1,5 @@
 import api, { publicApi } from './api';
-import { UserProfile } from '../types';
+import { UserProfile, SuggestedUser } from '../types';
 
 interface SearchResult {
   id: string;
@@ -16,7 +16,7 @@ export const userService = {
     return response.data;
   },
 
-  async getCurrentUserProfile(): Promise<any> {
+  async getCurrentUserProfile(): Promise<UserProfile> {
     const response = await api.get('/users/profile');
     return response.data;
   },
@@ -57,7 +57,7 @@ export const userService = {
     return response.data;
   },
 
-  async getSuggestedUsers(limit = 10): Promise<{ users: SearchResult[]; count: number }> {
+  async getSuggestedUsers(limit = 10): Promise<{ users: SuggestedUser[]; count: number }> {
     try {
       const response = await api.get('/users/suggestions', {
         params: { limit }
@@ -70,12 +70,12 @@ export const userService = {
     }
   },
 
-  async updateProfile(data: { bio?: string; website?: string; email?: string }): Promise<any> {
+  async updateProfile(data: { bio?: string; website?: string; email?: string }): Promise<{ message: string; user: UserProfile }> {
     const response = await api.put('/users/profile', data);
     return response.data;
   },
 
-  async changePassword(data: { current_password: string; new_password: string }): Promise<any> {
+  async changePassword(data: { current_password: string; new_password: string }): Promise<{ message: string }> {
     const response = await api.post('/users/change-password', data);
     return response.data;
   },

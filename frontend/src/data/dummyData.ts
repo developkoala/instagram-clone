@@ -88,11 +88,13 @@ export const dummyPosts: Post[] = [
       {
         id: '1-1',
         image_url: 'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=1080&h=1080&fit=crop',
+        position: 0,
         order_index: 0
       },
       {
         id: '1-2',
         image_url: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=1080&h=1080&fit=crop',
+        position: 1,
         order_index: 1
       }
     ],
@@ -110,6 +112,7 @@ export const dummyPosts: Post[] = [
       {
         id: '2-1',
         image_url: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=1080&h=1080&fit=crop',
+        position: 0,
         order_index: 0
       }
     ],
@@ -127,16 +130,19 @@ export const dummyPosts: Post[] = [
       {
         id: '3-1',
         image_url: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1080&h=1080&fit=crop',
+        position: 0,
         order_index: 0
       },
       {
         id: '3-2',
         image_url: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=1080&h=1080&fit=crop',
+        position: 1,
         order_index: 1
       },
       {
         id: '3-3',
         image_url: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1080&h=1080&fit=crop',
+        position: 2,
         order_index: 2
       }
     ],
@@ -154,21 +160,25 @@ export const dummyPosts: Post[] = [
       {
         id: '4-1',
         image_url: 'https://images.unsplash.com/photo-1561214115-f2f134cc4912?w=1080&h=1080&fit=crop',
+        position: 0,
         order_index: 0
       },
       {
         id: '4-2',
         image_url: 'https://images.unsplash.com/photo-1549490349-8643362247b5?w=1080&h=1080&fit=crop',
+        position: 1,
         order_index: 1
       },
       {
         id: '4-3',
         image_url: 'https://images.unsplash.com/photo-1578321272176-b7bbc0679853?w=1080&h=1080&fit=crop',
+        position: 2,
         order_index: 2
       },
       {
         id: '4-4',
         image_url: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=1080&h=1080&fit=crop',
+        position: 3,
         order_index: 3
       }
     ],
@@ -186,11 +196,13 @@ export const dummyPosts: Post[] = [
       {
         id: '5-1',
         image_url: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=1080&h=1080&fit=crop',
+        position: 0,
         order_index: 0
       },
       {
         id: '5-2',
         image_url: 'https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=1080&h=1080&fit=crop',
+        position: 1,
         order_index: 1
       }
     ],
@@ -208,6 +220,7 @@ export const dummyPosts: Post[] = [
       {
         id: '6-1',
         image_url: 'https://images.unsplash.com/photo-1522383225653-ed111181a951?w=1080&h=1080&fit=crop',
+        position: 0,
         order_index: 0
       }
     ],

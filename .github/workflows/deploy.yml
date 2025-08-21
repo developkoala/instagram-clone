@@ -6,7 +6,58 @@ on:
   workflow_dispatch:  # 수동 실행 가능
 
 jobs:
+  # CI 체크 먼저 실행
+  ci-check:
+    name: 🔍 Pre-deployment CI Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📋 Checkout code
+        uses: actions/checkout@v3
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: 📦 Install Frontend dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: 📦 Install Backend dependencies
+        run: |
+          cd backend
+          pip install -r requirements.txt
+
+      - name: 🏗️ Frontend Build Test
+        run: |
+          cd frontend
+          npm run build:strict
+          echo "✅ Frontend build successful"
+
+      - name: 🐍 Backend Syntax Check
+        run: |
+          cd backend
+          python -m py_compile app/*.py app/**/*.py
+          python -c "from app.main import app; print('✅ Backend imports successful')"
+
+      - name: ✅ CI Check Passed
+        run: |
+          echo "========================================="
+          echo "✅ All CI checks passed!"
+          echo "Proceeding with deployment..."
+          echo "========================================="
+
   deploy:
+    needs: ci-check  # CI 체크가 성공해야만 배포 진행
     name: 📦 Deploy to Production
     runs-on: ubuntu-latest
     
@@ -79,13 +130,15 @@ jobs:
               log_warning "일부 패키지 설치 실패 (계속 진행)"
           fi
           
-          # 3. 데이터베이스 마이그레이션
-          log_info "🗄️ 데이터베이스 마이그레이션 중..."
-          if alembic upgrade head; then
-              log_success "데이터베이스 마이그레이션 완료"
-          else
-              log_warning "마이그레이션 실패 또는 변경사항 없음"
-          fi
+          # 3. 데이터베이스 체크 (Alembic 설정되어 있지 않음)
+          log_info "🗄️ 데이터베이스 체크 중..."
+          # Alembic이 설정되면 아래 주석 해제
+          # if alembic upgrade head; then
+          #     log_success "데이터베이스 마이그레이션 완료"
+          # else
+          #     log_warning "마이그레이션 실패 또는 변경사항 없음"
+          # fi
+          log_info "데이터베이스 마이그레이션 스킵 (Alembic 미설정)"
           
           # 4. Frontend 빌드 (필요한 경우)
           if [ -d "$PROJECT_DIR/frontend" ]; then
@@ -98,11 +151,12 @@ jobs:
                   npm ci --silent
               fi
               
-              # 프로덕션 빌드
-              if npm run build --silent; then
+              # 프로덕션 빌드 (strict 모드로 빌드)
+              if npm run build:strict --silent; then
                   log_success "Frontend 빌드 완료"
               else
-                  log_warning "Frontend 빌드 실패 (기존 빌드 사용)"
+                  log_error "Frontend 빌드 실패"
+                  exit 1
               fi
           fi
           
@@ -182,3 +236,8 @@ jobs:
         run: |
           echo "❌ Deployment failed!"
           echo "Please check the logs for more information."
+          echo "Common issues:"
+          echo "  - TypeScript build errors"
+          echo "  - Missing environment variables"
+          echo "  - Python syntax errors"
+          echo "Run 'npm run build:strict' locally to test"
