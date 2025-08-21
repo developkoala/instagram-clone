@@ -5,6 +5,7 @@ passlib[bcrypt]
 python-multipart
 Pillow
 pydantic[email]
+pydantic-settings
 python-dotenv
 email-validator
 sqlalchemy
