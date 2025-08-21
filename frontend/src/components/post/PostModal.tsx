@@ -432,12 +432,22 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
                         setLikesCount(response.likes_count);
                       } catch (error: any) {
                         console.error('Like/Unlike error:', error);
+                        console.error('Error response:', error.response?.data);
+                        console.error('Error status:', error.response?.status);
+                        
                         if (error.response?.status === 400) {
+                          const errorDetail = error.response?.data?.detail;
+                          console.log('400 Error detail:', errorDetail);
+                          
                           // 이미 좋아요한 경우 상태 동기화
-                          if (error.response?.data?.detail === 'Already liked this post') {
+                          if (errorDetail === 'Already liked this post') {
                             setIsLiked(true);
-                          } else if (error.response?.data?.detail === 'Not liked this post') {
+                            showToast('이미 좋아요를 누르셨습니다.', 'info');
+                          } else if (errorDetail === 'Not liked this post') {
                             setIsLiked(false);
+                            showToast('좋아요를 취소할 수 없습니다.', 'info');
+                          } else {
+                            showToast(errorDetail || '요청을 처리할 수 없습니다.', 'error');
                           }
                         } else if (error.code === 'ERR_NETWORK') {
                           showToast('백엔드 서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.', 'error');
