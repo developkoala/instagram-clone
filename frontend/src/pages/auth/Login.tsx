@@ -54,7 +54,7 @@ const Login: React.FC = () => {
         {/* Login Form */}
         <div className="bg-white border border-instagram-border rounded-sm p-10">
           <h1 className="text-4xl font-light text-center mb-8" style={{ fontFamily: 'Billabong' }}>
-            Muksta
+            Muksta1
           </h1>
 
           <form onSubmit={handleSubmit} className="space-y-3">
