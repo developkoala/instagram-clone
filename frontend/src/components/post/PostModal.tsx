@@ -430,8 +430,20 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
                         }
                         setIsLiked(response.is_liked);
                         setLikesCount(response.likes_count);
-                      } catch {
-                        showToast('작업에 실패했습니다.', 'error');
+                      } catch (error: any) {
+                        console.error('Like/Unlike error:', error);
+                        if (error.response?.status === 400) {
+                          // 이미 좋아요한 경우 상태 동기화
+                          if (error.response?.data?.detail === 'Already liked this post') {
+                            setIsLiked(true);
+                          } else if (error.response?.data?.detail === 'Not liked this post') {
+                            setIsLiked(false);
+                          }
+                        } else if (error.code === 'ERR_NETWORK') {
+                          showToast('백엔드 서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.', 'error');
+                        } else {
+                          showToast('작업에 실패했습니다.', 'error');
+                        }
                       }
                     }}
                     className="hover:opacity-70"

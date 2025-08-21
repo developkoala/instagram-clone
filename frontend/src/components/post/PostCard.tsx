@@ -57,8 +57,20 @@ const PostCard: React.FC<PostCardProps> = ({ post, onClick }) => {
         setShowHeart(true);
         setTimeout(() => setShowHeart(false), 1000);
       }
-    } catch {
-      showToast('요청을 처리하지 못했습니다.', 'error');
+    } catch (error: any) {
+      console.error('Like/Unlike error:', error);
+      if (error.response?.status === 400) {
+        // 이미 좋아요한 경우 상태 동기화
+        if (error.response?.data?.detail === 'Already liked this post') {
+          setLiked(true);
+        } else if (error.response?.data?.detail === 'Not liked this post') {
+          setLiked(false);
+        }
+      } else if (error.code === 'ERR_NETWORK') {
+        showToast('백엔드 서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.', 'error');
+      } else {
+        showToast('요청을 처리하지 못했습니다.', 'error');
+      }
     }
   };
 
