@@ -8,23 +8,23 @@ class Settings(BaseSettings):
     environment: str = os.getenv("ENVIRONMENT", "development")
     
     # Database
-    database_url: str = "sqlite:///./instagram_clone.db"
+    database_url: str = os.getenv("DATABASE_URL", "sqlite:///./instagram_clone.db")
     
     # JWT
-    secret_key: str = "your-super-secret-key-here"
-    algorithm: str = "HS256"
-    access_token_expire_minutes: int = 60 * 24  # 1 day
-    refresh_token_expire_days: int = 30  # 30 days
+    secret_key: str = os.getenv("SECRET_KEY", "your-super-secret-key-here")
+    algorithm: str = os.getenv("ALGORITHM", "HS256")
+    access_token_expire_minutes: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "1440"))  # 1 day
+    refresh_token_expire_days: int = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "30"))  # 30 days
     
     # File Upload
-    upload_dir: str = "uploads"
-    max_file_size: int = 10485760  # 10MB
+    upload_dir: str = os.getenv("UPLOAD_DIR", "uploads")
+    max_file_size: int = int(os.getenv("MAX_FILE_SIZE", "10485760"))  # 10MB
     
     # CORS - will be set dynamically based on environment
-    frontend_url: str = "http://localhost:3000"
+    frontend_url: str = os.getenv("FRONTEND_URL", "http://localhost:3000")
     
     # Admin
-    admin_password: str = "admin123"
+    admin_password: str = os.getenv("ADMIN_PASSWORD", "admin123")
     
     # Server
     host: str = "127.0.0.1"
@@ -72,8 +72,10 @@ class Settings(BaseSettings):
         else:  # production
             # Production URLs only
             return [
-                "https://yourdomain.com",
-                "https://www.yourdomain.com"
+                "https://muksta.com",
+                "https://www.muksta.com",
+                "http://muksta.com",
+                "http://www.muksta.com"
             ]
     
     @property
