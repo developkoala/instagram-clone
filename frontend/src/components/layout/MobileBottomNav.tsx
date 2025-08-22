@@ -10,87 +10,77 @@ const MobileBottomNav: React.FC = () => {
   const { user } = useAuth();
   const [showCreatePost, setShowCreatePost] = useState(false);
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => {
+    if (path === '/') return location.pathname === '/';
+    return location.pathname.startsWith(path);
+  };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-instagram-border md:hidden z-50">
-      <div className="flex items-center justify-around h-12">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-muksta-border md:hidden z-50 safe-bottom">
+      <div className="flex items-center justify-around h-14">
         <Link
           to="/"
-          className={`flex items-center justify-center w-full h-full ${
-            isActive('/') ? 'text-instagram-dark' : 'text-instagram-gray'
+          className={`flex items-center justify-center w-full h-full transition-all ${
+            isActive('/') ? 'scale-110' : ''
           }`}
         >
-          <svg className="w-6 h-6" fill={isActive('/') ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 20 20">
-            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-          </svg>
+          <span className={`text-2xl ${isActive('/') ? 'drop-shadow-md' : ''}`}>
+            {isActive('/') ? '🏠' : '🏘️'}
+          </span>
         </Link>
 
         <Link
           to="/explore"
-          className={`flex items-center justify-center w-full h-full ${
-            isActive('/explore') ? 'text-instagram-dark' : 'text-instagram-gray'
+          className={`flex items-center justify-center w-full h-full transition-all ${
+            isActive('/explore') ? 'scale-110' : ''
           }`}
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={isActive('/explore') ? 2 : 1.5}
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
+          <span className={`text-2xl ${isActive('/explore') ? 'drop-shadow-md' : ''}`}>
+            {isActive('/explore') ? '🧭' : '🔍'}
+          </span>
         </Link>
 
         <button 
           onClick={() => user ? setShowCreatePost(true) : navigate('/login')}
-          className="flex items-center justify-center w-full h-full text-instagram-gray"
+          className="flex items-center justify-center w-full h-full transition-all active:scale-95"
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1.5}
-              d="M12 4v16m8-8H4"
-            />
-          </svg>
+          <span className="text-2xl bg-gradient-to-r from-muksta-orange to-muksta-yellow rounded-lg p-1">
+            ➕
+          </span>
         </button>
 
         <Link
           to="/notifications"
-          className={`flex items-center justify-center w-full h-full ${
-            isActive('/notifications') ? 'text-instagram-dark' : 'text-instagram-gray'
+          className={`flex items-center justify-center w-full h-full transition-all ${
+            isActive('/notifications') ? 'scale-110' : ''
           }`}
         >
-          <svg className="w-6 h-6" fill={isActive('/notifications') ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={isActive('/notifications') ? 2 : 1.5}
-              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-            />
-          </svg>
+          <span className={`text-2xl ${isActive('/notifications') ? 'drop-shadow-md' : ''}`}>
+            {isActive('/notifications') ? '🔔' : '🔕'}
+          </span>
         </Link>
 
         <Link
-          to={`/profile/${user?.username}`}
-          className={`flex items-center justify-center w-full h-full ${
-            location.pathname.includes('/profile') ? 'text-instagram-dark' : 'text-instagram-gray'
+          to={user ? `/profile/${user?.username}` : '/login'}
+          className={`flex items-center justify-center w-full h-full transition-all ${
+            location.pathname.includes('/profile') ? 'scale-110' : ''
           }`}
         >
-          <div className="w-6 h-6 rounded-full overflow-hidden border border-instagram-border">
-            {user?.profile_picture ? (
+          {user?.profile_picture ? (
+            <div className={`w-7 h-7 rounded-full overflow-hidden border-2 ${
+              location.pathname.includes('/profile') ? 'border-muksta-orange' : 'border-muksta-border'
+            }`}>
               <img
                 src={getImageUrl(user.profile_picture) || ''}
                 alt={user.username}
                 className="w-full h-full object-cover"
               />
-            ) : (
-              <div className="w-full h-full bg-instagram-lightGray flex items-center justify-center text-xs font-semibold">
-                {user?.username?.[0]?.toUpperCase()}
-              </div>
-            )}
-          </div>
+            </div>
+          ) : (
+            <span className={`text-2xl ${location.pathname.includes('/profile') ? 'drop-shadow-md' : ''}`}>
+              {location.pathname.includes('/profile') ? '👤' : '👥'}
+            </span>
+          )}
         </Link>
       </div>
 

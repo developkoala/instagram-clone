@@ -113,14 +113,14 @@ const Header: React.FC = () => {
 
   return (
     <header className={`fixed w-full top-0 z-50 bg-white border-b border-muksta-border shadow-sm transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
-      <div className="max-w-5xl mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+      <div className="max-w-5xl mx-auto px-2 sm:px-4">
+        <div className="flex items-center justify-between h-14 sm:h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3 group">
-            <span className="text-2xl transition-transform group-hover:rotate-12">🍴</span>
-            <span className="text-2xl transition-transform group-hover:scale-110">🍽️</span>
-            <span className="text-2xl transition-transform group-hover:-rotate-12">🔪</span>
-            <span className="text-2xl font-bold muksta-text-gradient ml-2">먹스타그램</span>
+          <Link to="/" className="flex items-center space-x-1 sm:space-x-3 group">
+            <span className="text-lg sm:text-2xl transition-transform group-hover:rotate-12">🍴</span>
+            <span className="hidden sm:inline text-2xl transition-transform group-hover:scale-110">🍽️</span>
+            <span className="hidden sm:inline text-2xl transition-transform group-hover:-rotate-12">🔪</span>
+            <span className="text-lg sm:text-2xl font-bold muksta-text-gradient ml-1 sm:ml-2">먹스타그램</span>
           </Link>
 
           {/* Search Bar - Desktop */}
@@ -129,50 +129,50 @@ const Header: React.FC = () => {
           </div>
 
           {/* Navigation Icons */}
-          <nav className="flex items-center space-x-6">
-            <Link to="/" className="hover:scale-110 transition-all group relative" title="맛피드">
-              <span className="text-2xl">🏠</span>
-              <span className="absolute -bottom-5 left-1/2 transform -translate-x-1/2 text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-muksta-dark">맛피드</span>
+          <nav className="flex items-center space-x-2 sm:space-x-4 md:space-x-6">
+            <Link to="/" className="hover:scale-110 transition-all group relative p-1 sm:p-0" title="맛피드">
+              <span className="text-xl sm:text-2xl">🏠</span>
+              <span className="hidden sm:block absolute -bottom-5 left-1/2 transform -translate-x-1/2 text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-muksta-dark">맛피드</span>
             </Link>
 
             <Link 
               to="/messages" 
-              className="hover:scale-110 transition-all group relative"
+              className="hover:scale-110 transition-all group relative p-1 sm:p-0"
               onClick={() => setHasNewMessage(false)}
               title="맛톡"
             >
-              <span className="text-2xl">💬</span>
+              <span className="text-xl sm:text-2xl">💬</span>
               {hasNewMessage && (
-                <div className="absolute -top-1 -right-1 w-2 h-2 bg-muksta-red rounded-full"></div>
+                <div className="absolute top-0 right-0 sm:-top-1 sm:-right-1 w-2 h-2 bg-muksta-red rounded-full"></div>
               )}
-              <span className="absolute -bottom-5 left-1/2 transform -translate-x-1/2 text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-muksta-dark">맛톡</span>
+              <span className="hidden sm:block absolute -bottom-5 left-1/2 transform -translate-x-1/2 text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-muksta-dark">맛톡</span>
             </Link>
 
             <button 
               onClick={() => user ? setShowCreatePost(true) : navigate('/login')}
-              className="hover:scale-110 transition-all group relative"
+              className="hover:scale-110 transition-all group relative p-1 sm:p-0"
               title="먹로그 작성"
             >
-              <span className="text-2xl">✏️</span>
-              <span className="absolute -bottom-5 left-1/2 transform -translate-x-1/2 text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-muksta-dark">먹로그 작성</span>
+              <span className="text-xl sm:text-2xl">✏️</span>
+              <span className="hidden sm:block absolute -bottom-5 left-1/2 transform -translate-x-1/2 text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-muksta-dark">먹로그 작성</span>
             </button>
 
-            <Link to="/explore" className="hover:scale-110 transition-all group relative" title="맛집 탐험">
-              <span className="text-2xl">🧭</span>
-              <span className="absolute -bottom-5 left-1/2 transform -translate-x-1/2 text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-muksta-dark">맛집 탐험</span>
+            <Link to="/explore" className="hover:scale-110 transition-all group relative p-1 sm:p-0" title="맛집 탐험">
+              <span className="text-xl sm:text-2xl">🧭</span>
+              <span className="hidden sm:block absolute -bottom-5 left-1/2 transform -translate-x-1/2 text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-muksta-dark">맛집 탐험</span>
             </Link>
 
             <Link 
               to="/notifications" 
-              className="hover:scale-110 transition-all group relative"
+              className="hover:scale-110 transition-all group relative p-1 sm:p-0"
               onClick={() => setHasNewNotification(false)}
               title="맛알림"
             >
-              <span className="text-2xl">🔔</span>
+              <span className="text-xl sm:text-2xl">🔔</span>
               {hasNewNotification && (
-                <div className="absolute -top-1 -right-1 w-2 h-2 bg-muksta-red rounded-full"></div>
+                <div className="absolute top-0 right-0 sm:-top-1 sm:-right-1 w-2 h-2 bg-muksta-red rounded-full"></div>
               )}
-              <span className="absolute -bottom-5 left-1/2 transform -translate-x-1/2 text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-muksta-dark">맛알림</span>
+              <span className="hidden sm:block absolute -bottom-5 left-1/2 transform -translate-x-1/2 text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-muksta-dark">맛알림</span>
             </Link>
 
             {/* Profile Dropdown */}
@@ -180,7 +180,7 @@ const Header: React.FC = () => {
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setShowDropdown(!showDropdown)}
-                  className="block w-8 h-8 overflow-hidden border-2 border-mukstagram-primary hover:scale-110 transition-transform shadow-md"
+                  className="block w-7 h-7 sm:w-8 sm:h-8 overflow-hidden border-2 border-mukstagram-primary hover:scale-110 transition-transform shadow-md"
                 >
                   {user?.profile_picture ? (
                     <img
