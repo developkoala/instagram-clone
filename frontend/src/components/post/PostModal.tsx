@@ -42,6 +42,11 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
   const [forceUpdate, setForceUpdate] = useState(0);
   const { showToast } = useToast();
   const navigate = useNavigate();
+  
+  // 터치 스와이프 상태
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const minSwipeDistance = 50;
 
   useEffect(() => {
     // 모달이 열릴 때 초기값 설정
@@ -95,6 +100,31 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
     setCurrentImageIndex((prev) => 
       prev === post.images.length - 1 ? 0 : prev + 1
     );
+  };
+  
+  // 터치 이벤트 핸들러
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe && post.images.length > 1) {
+      handleNextImage();
+    }
+    if (isRightSwipe && post.images.length > 1) {
+      handlePrevImage();
+    }
   };
 
   const handleLike = async () => {
@@ -236,12 +266,18 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
         >
           <div className="flex h-full bg-black rounded-lg overflow-hidden">
             {/* 이미지 섹션 */}
-            <div className="flex-1 relative bg-black flex items-center justify-center">
+            <div 
+              className="flex-1 relative bg-black flex items-center justify-center"
+              onTouchStart={onTouchStart}
+              onTouchMove={onTouchMove}
+              onTouchEnd={onTouchEnd}
+            >
             <img
               src={getImageUrl(post.images[currentImageIndex].image_url)}
               alt={`Post ${currentImageIndex + 1}`}
-              className="max-w-full max-h-full object-contain cursor-zoom-in"
+              className="max-w-full max-h-full object-contain cursor-zoom-in select-none"
               onClick={() => setShowImageZoom(true)}
+              draggable={false}
               onError={() => {
                 // 이미지 로드 실패 시 조용히 처리
               }}
@@ -614,11 +650,17 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
           </div>
 
           {/* Image Carousel */}
-          <div className="relative">
+          <div 
+            className="relative"
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+          >
             <img
               src={getImageUrl(post.images[currentImageIndex].image_url)}
               alt={`Post ${currentImageIndex + 1}`}
-              className="w-full"
+              className="w-full select-none"
+              draggable={false}
             />
             
             {/* Image Navigation for Mobile */}

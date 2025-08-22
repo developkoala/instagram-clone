@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { PostImage } from '../../types';
 import { getImageUrl } from '../../utils/imageUrl';
 
@@ -8,6 +8,13 @@ interface ImageCarouselProps {
 
 const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // 최소 스와이프 거리 (픽셀)
+  const minSwipeDistance = 50;
 
   const goToPrevious = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -19,6 +26,76 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
     setCurrentIndex((prevIndex) => (prevIndex === images.length - 1 ? 0 : prevIndex + 1));
   };
 
+  // 터치 이벤트 핸들러
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+    setIsDragging(true);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) {
+      setIsDragging(false);
+      return;
+    }
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe && images.length > 1) {
+      // 왼쪽으로 스와이프 -> 다음 이미지
+      setCurrentIndex((prevIndex) => (prevIndex === images.length - 1 ? 0 : prevIndex + 1));
+    }
+    if (isRightSwipe && images.length > 1) {
+      // 오른쪽으로 스와이프 -> 이전 이미지
+      setCurrentIndex((prevIndex) => (prevIndex === 0 ? images.length - 1 : prevIndex - 1));
+    }
+    
+    setIsDragging(false);
+  };
+
+  // 마우스 이벤트 핸들러 (데스크톱에서 드래그 지원)
+  const onMouseDown = (e: React.MouseEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.clientX);
+    setIsDragging(true);
+  };
+
+  const onMouseMove = (e: React.MouseEvent) => {
+    if (isDragging) {
+      setTouchEnd(e.clientX);
+    }
+  };
+
+  const onMouseUp = () => {
+    if (!touchStart || !touchEnd) {
+      setIsDragging(false);
+      return;
+    }
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe && images.length > 1) {
+      setCurrentIndex((prevIndex) => (prevIndex === images.length - 1 ? 0 : prevIndex + 1));
+    }
+    if (isRightSwipe && images.length > 1) {
+      setCurrentIndex((prevIndex) => (prevIndex === 0 ? images.length - 1 : prevIndex - 1));
+    }
+    
+    setIsDragging(false);
+  };
+
+  const onMouseLeave = () => {
+    setIsDragging(false);
+  };
+
   if (images.length === 0) {
     return (
       <div className="aspect-square bg-instagram-lightGray flex items-center justify-center">
@@ -28,11 +105,23 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
   }
 
   return (
-    <div className="relative aspect-square bg-black">
+    <div 
+      ref={containerRef}
+      className="relative aspect-square bg-black select-none"
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+      onMouseDown={onMouseDown}
+      onMouseMove={onMouseMove}
+      onMouseUp={onMouseUp}
+      onMouseLeave={onMouseLeave}
+      style={{ cursor: isDragging ? 'grabbing' : images.length > 1 ? 'grab' : 'default' }}
+    >
       <img
         src={getImageUrl(images[currentIndex].image_url)}
         alt=""
-        className="w-full h-full object-contain"
+        className="w-full h-full object-contain pointer-events-none"
+        draggable={false}
         onError={() => {
           // 이미지 로드 실패 시 조용히 처리 (외부 URL 문제일 수 있음)
         }}
