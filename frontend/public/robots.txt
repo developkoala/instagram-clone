@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://muksta.com/sitemap.xml
