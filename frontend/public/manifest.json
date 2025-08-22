@@ -3,11 +3,28 @@
   "short_name": "먹스타그램",
   "description": "음식 사진과 맛집 정보를 공유하는 소셜 네트워크",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
+  "background_color": "#FFF8E7",
   "theme_color": "#FF6B35",
   "orientation": "portrait",
+  "categories": ["food", "social", "photo"],
+  "lang": "ko-KR",
+  "dir": "ltr",
+  "prefer_related_applications": false,
   "icons": [
+    {
+      "src": "/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "/android-chrome-192x192.png",
       "sizes": "192x192",
@@ -19,6 +36,43 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/og-image.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "label": "먹스타그램 홈 화면"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "새 게시물",
+      "short_name": "게시",
+      "description": "새로운 음식 사진 공유",
+      "url": "/",
+      "icons": [{ "src": "/favicon-32x32.png", "sizes": "32x32" }]
+    },
+    {
+      "name": "맛집 탐험",
+      "short_name": "탐험",
+      "description": "인기 맛집 둘러보기",
+      "url": "/explore",
+      "icons": [{ "src": "/favicon-32x32.png", "sizes": "32x32" }]
+    },
+    {
+      "name": "알림",
+      "short_name": "알림",
+      "description": "새 알림 확인",
+      "url": "/notifications",
+      "icons": [{ "src": "/favicon-32x32.png", "sizes": "32x32" }]
     }
   ]
 }

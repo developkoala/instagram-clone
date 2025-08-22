@@ -20,6 +20,8 @@ import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminPosts from './pages/admin/AdminPosts';
+import PWAInstall from './components/common/PWAInstall';
+import './utils/pwa'; // PWA 초기화
 
 const queryClient = new QueryClient();
 
@@ -89,6 +91,7 @@ function App() {
               </Routes>
             </Router>
             <Toasts />
+            <PWAInstall />
           </WebSocketProvider>
         </AuthProvider>
       </ToastProvider>

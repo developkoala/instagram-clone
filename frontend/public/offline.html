@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오프라인 - 먹스타그램</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #FFF8E7 0%, #FFE5CC 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .offline-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(255, 107, 53, 0.1);
+        }
+        
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 30px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        h1 {
+            color: #FF6B35;
+            font-size: 28px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .emoji {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        p {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .features {
+            background: #FFF8E7;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 30px 0;
+        }
+        
+        .features h3 {
+            color: #FF6B35;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        
+        .feature-list {
+            text-align: left;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .feature-list li {
+            margin: 10px 0;
+            list-style: none;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        .feature-list li:before {
+            content: '🍴';
+            position: absolute;
+            left: 0;
+        }
+        
+        .retry-btn {
+            background: linear-gradient(135deg, #FF6B35 0%, #FCA311 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            font-weight: 600;
+        }
+        
+        .retry-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 5px 15px;
+            background: #FFE5CC;
+            color: #FF6B35;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <img src="/mukstagram-logo.png" alt="먹스타그램" class="logo">
+        
+        <div class="emoji">🍽️</div>
+        
+        <h1>오프라인 상태입니다</h1>
+        
+        <p>
+            인터넷 연결이 없어요!<br>
+            맛있는 음식 사진들을 보려면<br>
+            네트워크 연결이 필요합니다.
+        </p>
+        
+        <div class="features">
+            <h3>오프라인에서도 가능한 기능</h3>
+            <ul class="feature-list">
+                <li>이전에 본 게시물 확인</li>
+                <li>캐시된 이미지 보기</li>
+                <li>임시 저장된 게시물 작성</li>
+                <li>프로필 정보 확인</li>
+            </ul>
+        </div>
+        
+        <button class="retry-btn" onclick="window.location.reload()">
+            다시 시도하기
+        </button>
+        
+        <div class="status" id="connection-status">
+            오프라인 모드
+        </div>
+    </div>
+    
+    <script>
+        // 온라인/오프라인 상태 감지
+        window.addEventListener('online', () => {
+            document.getElementById('connection-status').textContent = '연결됨! 새로고침 중...';
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        });
+        
+        window.addEventListener('offline', () => {
+            document.getElementById('connection-status').textContent = '오프라인 모드';
+        });
+        
+        // 주기적으로 연결 확인
+        setInterval(() => {
+            fetch('/favicon.ico')
+                .then(() => {
+                    window.location.reload();
+                })
+                .catch(() => {
+                    console.log('Still offline');
+                });
+        }, 30000); // 30초마다 확인
+    </script>
+</body>
+</html>
