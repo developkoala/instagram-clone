@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Post } from '../../types';
 import PostModal from '../../components/post/PostModal';
+import SEO from '../../components/common/SEO';
 import { postService } from '../../services/post.service';
 
 const Explore: React.FC = () => {
@@ -78,7 +79,13 @@ const Explore: React.FC = () => {
   }, [sentinelRef.current, page, hasMore]);
 
   return (
-    <div className="max-w-4xl mx-auto pt-6 px-4 md:px-0 pb-20">
+    <>
+      <SEO 
+        title="맛집 탐험"
+        description="먹스타그램에서 새로운 맛집과 음식 사진을 탐험하세요. 인기 있는 맛집 게시물과 추천 음식들을 한눈에 확인하세요."
+        keywords="맛집 탐험, 음식 탐색, 인기 맛집, 추천 음식, 먹스타그램 탐험"
+      />
+      <div className="max-w-4xl mx-auto pt-6 px-4 md:px-0 pb-20">
       {/* Header Section */}
       <div className="mb-6 text-center">
         <h1 className="text-3xl font-bold text-mukstagram-primary mb-2">
@@ -156,6 +163,7 @@ const Explore: React.FC = () => {
         <div className="py-6 text-center text-sm text-instagram-gray">불러오는 중…</div>
       )}
     </div>
+    </>
   );
 };
 

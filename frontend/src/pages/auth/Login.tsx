@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import SEO from '../../components/common/SEO';
 import { useAuth } from "../../hooks/useAuth";
 
 const Login: React.FC = () => {
@@ -49,7 +50,13 @@ const Login: React.FC = () => {
   const isFormValid = formData.email && formData.password;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-mukstagram-secondary via-white to-mukstagram-lightGray px-4">
+    <>
+      <SEO 
+        title="로그인"
+        description="먹스타그램에 로그인하여 맛있는 음식 사진과 맛집 정보를 공유하세요."
+        keywords="먹스타그램 로그인, 음식 SNS 로그인, 맛집 공유"
+      />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-mukstagram-secondary via-white to-mukstagram-lightGray px-4">
       <div className="max-w-sm w-full space-y-3">
         {/* Login Form */}
         <div className="bg-white border border-instagram-border rounded-sm p-10">
@@ -121,6 +128,7 @@ const Login: React.FC = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

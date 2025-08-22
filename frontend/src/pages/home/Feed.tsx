@@ -5,6 +5,7 @@ import PostCard from '../../components/post/PostCard';
 import Stories from '../../components/home/Stories';
 import Loading from '../../components/common/Loading';
 import PostModal from '../../components/post/PostModal';
+import SEO from '../../components/common/SEO';
 import { postService } from '../../services/post.service';
 import { userService } from '../../services/user.service';
 import { useAuth } from "../../hooks/useAuth";
@@ -152,7 +153,13 @@ const Feed: React.FC = () => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto pt-6 px-4 md:px-0">
+    <>
+      <SEO 
+        title="홈 피드"
+        description="먹스타그램에서 맛있는 음식 사진과 맛집 정보를 확인하세요. 팔로우한 사용자들의 최신 게시물을 실시간으로 만나보세요."
+        keywords="먹스타그램 피드, 음식 피드, 맛집 피드, 팔로우, 타임라인"
+      />
+      <div className="max-w-2xl mx-auto pt-6 px-4 md:px-0">
       <div className="md:flex md:space-x-6">
         {/* Main Feed */}
         <div className="flex-1">
@@ -442,6 +449,7 @@ const Feed: React.FC = () => {
         </div>
       </footer>
     </div>
+    </>
   );
 };
 

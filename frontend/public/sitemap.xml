@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  
+  <!-- 메인 페이지 -->
+  <url>
+    <loc>https://muksta.com/</loc>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <lastmod>2025-08-22</lastmod>
+  </url>
+  
+  <!-- 탐색 페이지 -->
+  <url>
+    <loc>https://muksta.com/explore</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+    <lastmod>2025-08-22</lastmod>
+  </url>
+  
+  <!-- 추천 사용자 페이지 -->
+  <url>
+    <loc>https://muksta.com/explore/people/suggested</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-08-22</lastmod>
+  </url>
+  
+  <!-- 로그인 페이지 -->
+  <url>
+    <loc>https://muksta.com/login</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <lastmod>2025-08-22</lastmod>
+  </url>
+  
+  <!-- 회원가입 페이지 -->
+  <url>
+    <loc>https://muksta.com/register</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <lastmod>2025-08-22</lastmod>
+  </url>
+  
+  <!-- 주요 사용자 프로필 (예시) -->
+  <url>
+    <loc>https://muksta.com/profile/맛집</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+    <lastmod>2025-08-22</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://muksta.com/profile/이지우</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+    <lastmod>2025-08-22</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://muksta.com/profile/김철수</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+    <lastmod>2025-08-22</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://muksta.com/profile/박영희</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+    <lastmod>2025-08-22</lastmod>
+  </url>
+  
+  <!-- 정적 페이지 -->
+  <url>
+    <loc>https://muksta.com/about</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+    <lastmod>2025-08-22</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://muksta.com/privacy</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+    <lastmod>2025-08-22</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://muksta.com/terms</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+    <lastmod>2025-08-22</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://muksta.com/help</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+    <lastmod>2025-08-22</lastmod>
+  </url>
+  
+</urlset>

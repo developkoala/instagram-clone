@@ -1,3 +1,46 @@
+# 먹스타그램 robots.txt
+# https://muksta.com
+
+# 모든 검색엔진 크롤러 허용
 User-agent: *
 Allow: /
+Allow: /profile/
+Allow: /explore
+Disallow: /api/
+Disallow: /admin/
+Disallow: /messages/
+Disallow: /settings/
+Disallow: /notifications/
+Disallow: /*.json$
+Disallow: /*?page=
+Crawl-delay: 1
+
+# 구글봇 특별 설정
+User-agent: Googlebot
+Allow: /
+Allow: /profile/
+Allow: /explore
+Disallow: /api/
+Disallow: /admin/
+Crawl-delay: 0
+
+# 네이버봇 설정
+User-agent: Yeti
+Allow: /
+Allow: /profile/
+Allow: /explore
+Disallow: /api/
+Disallow: /admin/
+Crawl-delay: 1
+
+# 카카오봇 설정
+User-agent: Daum
+Allow: /
+Allow: /profile/
+Allow: /explore
+Disallow: /api/
+Disallow: /admin/
+Crawl-delay: 1
+
+# 사이트맵 위치
 Sitemap: https://muksta.com/sitemap.xml
