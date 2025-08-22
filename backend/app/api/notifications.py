@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 
 router = APIRouter(prefix="/api/notifications", tags=["Notifications"])
 
-@router.get("/")
+@router.get("")
 async def get_notifications(
     page: int = Query(1, ge=1),
     limit: int = Query(20, ge=1, le=50),

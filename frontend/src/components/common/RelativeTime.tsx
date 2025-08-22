@@ -25,14 +25,22 @@ const RelativeTime: React.FC<RelativeTimeProps> = ({
 
   const updateTime = useCallback(() => {
     try {
-      const dateObj = typeof date === 'string' ? new Date(date) : date;
+      let dateObj: Date;
+      if (typeof date === 'string') {
+        // UTC 시간 문자열인 경우 'Z'를 추가하여 UTC로 명시
+        const dateStr = date.includes('Z') || date.includes('+') ? date : date + 'Z';
+        dateObj = new Date(dateStr);
+      } else {
+        dateObj = date;
+      }
+      
       const distance = formatDistanceToNow(dateObj, { 
         locale: ko,
         addSuffix: false 
       });
       setRelativeTime(distance);
-    } catch {
-      console.error('Invalid date:', date);
+    } catch (error) {
+      console.error('Invalid date:', date, error);
       setRelativeTime('');
     }
   }, [date]);

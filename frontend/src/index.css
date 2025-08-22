@@ -1,62 +1,116 @@
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* 먹스타그램 커스텀 CSS 변수 */
+:root {
+  --muksta-orange: #FF6B35;
+  --muksta-red: #E63946;
+  --muksta-yellow: #FCA311;
+  --muksta-green: #06BA63;
+  --muksta-brown: #8B4513;
+  --muksta-cream: #FFF8E7;
+  --muksta-dark: #2D3436;
+  --muksta-gray: #636E72;
+  --muksta-light-gray: #F5F3F0;
+}
+
 @layer base {
   html {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-family: 'Pretendard', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
   
   body {
-    @apply bg-instagram-secondary text-instagram-dark;
+    @apply bg-muksta-cream text-muksta-dark;
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-instagram-accent text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-muksta-orange text-white font-semibold py-2 px-4 rounded-xl hover:bg-muksta-red transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed;
   }
   
   .btn-secondary {
-    @apply bg-instagram-lightGray text-instagram-dark font-semibold py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors duration-200;
+    @apply bg-white text-muksta-dark font-semibold py-2 px-4 rounded-xl border border-muksta-border hover:bg-muksta-lightGray transition-all duration-200;
   }
   
   .input-field {
-    @apply w-full px-3 py-2 bg-instagram-secondary border border-instagram-border rounded focus:outline-none focus:border-instagram-gray text-sm;
+    @apply w-full px-3 py-2 bg-white border border-muksta-border rounded-lg focus:outline-none focus:border-muksta-orange focus:ring-2 focus:ring-muksta-orange focus:ring-opacity-20 text-sm;
   }
   
   .story-ring {
-    @apply relative after:content-[''] after:absolute after:inset-0 after:rounded-full after:p-[2px] after:bg-gradient-to-tr after:from-yellow-400 after:via-red-500 after:to-purple-500;
+    @apply relative after:content-[''] after:absolute after:inset-0 after:rounded-full after:p-[2px] after:bg-gradient-to-tr after:from-muksta-yellow after:via-muksta-orange after:to-muksta-red;
+  }
+  
+  .muksta-card {
+    @apply bg-white rounded-2xl shadow-card hover:shadow-card-hover transition-shadow duration-200;
+  }
+  
+  .muksta-btn {
+    @apply px-4 py-2 rounded-xl font-medium transition-all duration-200 transform hover:scale-105;
+  }
+  
+  .muksta-btn-primary {
+    @apply bg-muksta-orange text-white hover:bg-muksta-red shadow-muksta;
+  }
+  
+  .muksta-btn-secondary {
+    @apply bg-white text-muksta-dark border border-muksta-border hover:bg-muksta-lightGray;
   }
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar - 먹스타그램 스타일 */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--muksta-light-gray);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c4c4c4;
+  background: var(--muksta-orange);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a0a0a0;
+  background: var(--muksta-red);
 }
 
-/* Story gradient */
+/* 선택 영역 색상 */
+::selection {
+  background-color: rgba(255, 107, 53, 0.2);
+  color: var(--muksta-dark);
+}
+
+/* 먹스타그램 스토리 그라데이션 */
 .story-gradient {
-  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  background: linear-gradient(45deg, var(--muksta-yellow) 0%, var(--muksta-orange) 50%, var(--muksta-red) 100%);
 }
 
-/* Heart animation */
-.heart-animation {
-  animation: heart 0.8s ease-in-out;
+/* 맛있어요 애니메이션 */
+.like-animation {
+  animation: like 0.4s ease-in-out;
+}
+
+@keyframes like {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+/* 로딩 접시 애니메이션 */
+@keyframes plate-rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-plate {
+  animation: plate-rotate 2s linear infinite;
 }
 
 /* Prevent text selection on double click */
@@ -66,3 +120,27 @@
   -ms-user-select: none;
   user-select: none;
 }
+
+/* 먹스타그램 특별 효과 */
+.muksta-glow {
+  box-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
+}
+
+.muksta-text-gradient {
+  background: linear-gradient(135deg, var(--muksta-orange), var(--muksta-red));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 음식 카테고리 태그 */
+.food-tag {
+  @apply inline-block px-3 py-1 rounded-full text-xs font-medium;
+}
+
+.food-tag-korean { @apply bg-red-100 text-red-700; }
+.food-tag-chinese { @apply bg-yellow-100 text-yellow-700; }
+.food-tag-japanese { @apply bg-blue-100 text-blue-700; }
+.food-tag-western { @apply bg-purple-100 text-purple-700; }
+.food-tag-dessert { @apply bg-pink-100 text-pink-700; }
+.food-tag-cafe { @apply bg-amber-100 text-amber-700; }

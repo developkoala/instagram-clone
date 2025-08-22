@@ -41,7 +41,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, onClick }) => {
 
   const handleLike = async () => {
     if (!isAuthenticated) {
-      setLoginPromptMessage('좋아요를 표시하려면 로그인이 필요합니다.');
+      setLoginPromptMessage('👍 맛있다고 표시하려면 로그인이 필요합니다.');
       setShowLoginPrompt(true);
       return;
     }
@@ -137,12 +137,12 @@ const PostCard: React.FC<PostCardProps> = ({ post, onClick }) => {
   };
 
   return (
-    <article className="bg-white border-y md:border md:rounded-lg border-instagram-border mb-6">
+    <article className="bg-gradient-to-br from-white to-mukstagram-secondary border-2 md:border-4 md:rounded-2xl border-mukstagram-border mb-8 shadow-lg hover:shadow-2xl transition-all hover:scale-[1.02] duration-300 overflow-hidden">
       {/* Header */}
       <header className="flex items-center p-3">
         <div className="flex items-center space-x-3">
           <Link to={`/profile/${post.user.username}`}>
-            <div className="w-8 h-8 rounded-full overflow-hidden">
+            <div className="w-8 h-8 overflow-hidden border-2 border-mukstagram-border shadow-sm">
               {(user && user.username === post.user.username ? user.profile_picture : post.user.profile_picture) ? (
                 <img
                   src={getImageUrl(user && user.username === post.user.username ? user.profile_picture : post.user.profile_picture) || ''}
@@ -158,11 +158,31 @@ const PostCard: React.FC<PostCardProps> = ({ post, onClick }) => {
             </div>
           </Link>
           <div>
-            <Link to={`/profile/${post.user.username}`} className="font-semibold text-sm">
-              {post.user.username}
-            </Link>
+            <div>
+              <Link to={`/profile/${post.user.username}`} className="font-bold text-base text-mukstagram-dark hover:text-mukstagram-primary transition-colors">
+                {post.user.username}
+              </Link>
+              <div className="flex items-center gap-1 text-xs text-mukstagram-gray">
+                <span>👨‍🍳 맛집 탐험가</span>
+              </div>
+            </div>
             {post.location && (
-              <p className="text-xs text-instagram-gray">{post.location}</p>
+              <div className="flex items-center gap-2">
+                <p className="text-xs text-mukstagram-gray">{post.location}</p>
+                {/* 음식 카테고리 배지 */}
+                {post.location.includes('카페') && (
+                  <span className="text-xs bg-mukstagram-brown text-white px-2 py-0.5 rounded-full">☕ 카페</span>
+                )}
+                {(post.location.includes('한식') || post.location.includes('식당')) && (
+                  <span className="text-xs bg-mukstagram-green text-white px-2 py-0.5 rounded-full">🍚 한식</span>
+                )}
+                {post.location.includes('일식') && (
+                  <span className="text-xs bg-mukstagram-accent text-white px-2 py-0.5 rounded-full">🍱 일식</span>
+                )}
+                {(post.location.includes('양식') || post.location.includes('레스토랑')) && (
+                  <span className="text-xs bg-mukstagram-primary text-white px-2 py-0.5 rounded-full">🍝 양식</span>
+                )}
+              </div>
             )}
           </div>
         </div>
@@ -192,24 +212,11 @@ const PostCard: React.FC<PostCardProps> = ({ post, onClick }) => {
       <div className="px-3 py-2">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center space-x-4">
-            <button onClick={handleLike} className="hover:opacity-50 transition-opacity">
+            <button onClick={handleLike} className="hover:scale-110 transition-transform">
               {liked ? (
-                <svg className="w-6 h-6 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+                <span className="text-2xl">👍</span>
               ) : (
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                  />
-                </svg>
+                <span className="text-2xl opacity-50 hover:opacity-100">👍</span>
               )}
             </button>
 
@@ -231,7 +238,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, onClick }) => {
 
         {/* Likes */}
         {likesCount > 0 && (
-          <button className="font-semibold text-sm mb-2 hover:opacity-70">
+          <button className="font-bold text-sm mb-2 hover:opacity-70">
             좋아요 {likesCount.toLocaleString()}개
           </button>
         )}
@@ -239,9 +246,11 @@ const PostCard: React.FC<PostCardProps> = ({ post, onClick }) => {
         {/* Caption */}
         {post.caption && (
           <div className="mb-2">
-            <Link to={`/profile/${post.user.username}`} className="font-semibold text-sm mr-2">
-              {post.user.username}
-            </Link>
+            <div className="flex items-center gap-2 mb-1">
+              <Link to={`/profile/${post.user.username}`} className="font-semibold text-sm">
+                {post.user.username}
+              </Link>
+            </div>
             <span className="text-sm whitespace-pre-wrap">{post.caption}</span>
           </div>
         )}
@@ -263,10 +272,10 @@ const PostCard: React.FC<PostCardProps> = ({ post, onClick }) => {
       </div>
 
       {/* Add comment */}
-      <div className="border-t border-instagram-border px-3 py-2 flex items-center">
+      <div className="border-t border-muksta-border px-4 py-3 flex items-center">
         <input
           type="text"
-          placeholder="댓글 달기..."
+          placeholder="맛 평가를 남겨주세요..."
           className="flex-1 outline-none text-sm"
           value={comment}
           onChange={(e) => setComment(e.target.value)}
@@ -279,10 +288,10 @@ const PostCard: React.FC<PostCardProps> = ({ post, onClick }) => {
         />
         <button 
           onClick={handleCommentSubmit}
-          className="text-instagram-accent font-semibold text-sm disabled:opacity-50" 
+          className="text-muksta-orange font-semibold text-sm disabled:opacity-50 hover:text-muksta-red transition-colors" 
           disabled={!comment.trim() || isSubmitting}
         >
-          게시
+          남기기
         </button>
       </div>
       

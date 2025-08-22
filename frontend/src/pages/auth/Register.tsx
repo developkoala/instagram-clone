@@ -72,17 +72,18 @@ const Register: React.FC = () => {
     formData.password === formData.confirmPassword;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-instagram-secondary px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-mukstagram-secondary via-white to-mukstagram-lightGray px-4">
       <div className="max-w-sm w-full space-y-3">
         {/* Register Form */}
         <div className="bg-white border border-instagram-border rounded-sm p-10">
-          <h1 className="text-4xl font-light text-center mb-4" style={{ fontFamily: 'Billabong' }}>
-            Muksta
-          </h1>
-
-          <p className="text-center text-instagram-gray font-semibold mb-6">
-            친구들의 사진과 동영상을 보려면 가입하세요.
-          </p>
+          <div className="text-center mb-6">
+            <h1 className="text-5xl font-bold text-mukstagram-primary mb-2">
+              🍽️ 먹스타그램
+            </h1>
+            <p className="text-mukstagram-dark font-medium">
+              맛집 탐험과 음식 사진을 공유하는 커뮤니티
+            </p>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-3">
             <div>
@@ -144,7 +145,7 @@ const Register: React.FC = () => {
             <button
               type="submit"
               disabled={!isFormValid || loading}
-              className="w-full bg-instagram-accent text-white font-semibold py-1.5 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-600 transition-colors"
+              className="w-full bg-mukstagram-primary text-white font-semibold py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-mukstagram-accent transition-all transform hover:scale-105 shadow-md"
             >
               {loading ? '가입 중...' : '가입'}
             </button>
@@ -159,7 +160,7 @@ const Register: React.FC = () => {
         <div className="bg-white border border-instagram-border rounded-sm p-6 text-center">
           <p className="text-sm">
             계정이 있으신가요?{' '}
-            <Link to="/login" className="text-instagram-accent font-semibold">
+            <Link to="/login" className="text-mukstagram-primary font-bold hover:text-mukstagram-accent transition-colors">
               로그인
             </Link>
           </p>

@@ -79,6 +79,16 @@ const Explore: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto pt-6 px-4 md:px-0 pb-20">
+      {/* Header Section */}
+      <div className="mb-6 text-center">
+        <h1 className="text-3xl font-bold text-mukstagram-primary mb-2">
+          🍴 오늘의 인기 맛집
+        </h1>
+        <p className="text-mukstagram-gray">
+          먹스타그래머들이 추천하는 핫플레이스를 발견해보세요
+        </p>
+      </div>
+      
       <div className="grid grid-cols-3 gap-1 md:gap-4">
         {explorePosts.map((post) => (
           <button

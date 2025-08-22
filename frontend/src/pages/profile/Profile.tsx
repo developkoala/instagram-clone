@@ -150,7 +150,7 @@ const Profile: React.FC = () => {
       <header className="mb-12">
         <div className="flex flex-col md:flex-row items-center md:items-start">
           {/* Profile Picture */}
-          <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden mb-4 md:mb-0 md:mr-12 relative">
+          <div className="w-32 h-32 md:w-40 md:h-40 overflow-hidden mb-4 md:mb-0 md:mr-12 relative border-4 border-mukstagram-primary shadow-lg">
             {(isOwnProfile && authUser?.profile_picture) || (!isOwnProfile && profile.profile_picture) ? (
               <img
                 key={updateKey}
@@ -162,7 +162,7 @@ const Profile: React.FC = () => {
                 }}
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center">
+              <div className="w-full h-full bg-gradient-to-br from-mukstagram-primary to-mukstagram-accent flex items-center justify-center">
                 <span className="text-3xl text-white font-semibold">
                   {profile.username.charAt(0).toUpperCase()}
                 </span>
@@ -225,7 +225,7 @@ const Profile: React.FC = () => {
                           : 'bg-instagram-accent text-white'
                       }`}
                     >
-                      {isFollowing ? '팔로잉' : '팔로우'}
+                      {isFollowing ? '맛친중' : '맛친하기'}
                     </button>
                     <button 
                       onClick={() => navigate(`/messages?user=${profile.username}`)}
@@ -244,10 +244,10 @@ const Profile: React.FC = () => {
                 게시물 <span className="font-semibold">{profile.posts_count}</span>
               </div>
               <button>
-                팔로워 <span className="font-semibold">{profile.followers_count.toLocaleString()}</span>
+                맛친들 <span className="font-semibold">{profile.followers_count.toLocaleString()}</span>
               </button>
               <button>
-                팔로잉 <span className="font-semibold">{profile.following_count.toLocaleString()}</span>
+                맛친중 <span className="font-semibold">{profile.following_count.toLocaleString()}</span>
               </button>
             </div>
 
@@ -285,7 +285,7 @@ const Profile: React.FC = () => {
               <line fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" x1="21" x2="3" y1="9.015" y2="9.015"/>
               <line fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" x1="21" x2="3" y1="14.985" y2="14.985"/>
             </svg>
-            <span className="text-xs uppercase tracking-wider font-semibold">게시물</span>
+            <span className="text-xs uppercase tracking-wider font-semibold">🍴 맛집 기록</span>
           </button>
         </div>
       </div>

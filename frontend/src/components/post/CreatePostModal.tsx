@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import ReactDOM from 'react-dom';
 import { X, Image, ArrowLeft, ChevronLeft, ChevronRight, RotateCw } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
@@ -41,7 +42,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
     },
     onError: (error) => {
       console.error('Failed to create post:', error);
-      alert('게시물 생성에 실패했습니다.');
+      alert('맛집 공유에 실패했습니다.');
     },
   });
 
@@ -238,13 +239,14 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
 
   if (!isOpen) return null;
 
-  return (
+  return ReactDOM.createPortal(
     <div 
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 md:p-0"
+      className="fixed top-0 left-0 right-0 bottom-0 z-[9999] bg-black bg-opacity-75"
       onClick={handleClose}
+      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
     >
       <div 
-        className="bg-white rounded-lg w-full max-w-md md:max-w-5xl max-h-[70vh] md:max-h-[90vh] overflow-hidden"
+        className="bg-white rounded-lg w-11/12 max-w-md md:max-w-4xl max-h-[80vh] overflow-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -255,14 +257,14 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
           >
             {step === 'upload' ? <X size={24} /> : <ArrowLeft size={24} />}
           </button>
-          <h2 className="font-semibold flex-1 text-center px-2">
-            {step === 'upload' ? '새 게시물 만들기' : step === 'rotate' ? '편집' : '새 게시물'}
+          <h2 className="font-semibold flex-1 text-center px-2 text-mukstagram-dark">
+            {step === 'upload' ? '🍴 맛집 사진 공유하기' : step === 'rotate' ? '편집' : '🍴 맛집 소개'}
           </h2>
           <div className="flex-shrink-0 min-w-[80px] flex justify-end">
             {step === 'rotate' ? (
               <button
                 onClick={handleProceedToEdit}
-                className="text-white font-bold bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded text-base shadow-lg"
+                className="text-white font-bold bg-muksta-orange hover:bg-muksta-red px-4 py-2 rounded text-base shadow-lg"
               >
                 다음
               </button>
@@ -270,9 +272,9 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
               <button
                 onClick={handleSubmit}
                 disabled={createPostMutation.isPending}
-                className="text-white font-bold bg-blue-500 hover:bg-blue-600 disabled:opacity-50 px-4 py-2 rounded text-base shadow-lg"
+                className="text-white font-bold bg-muksta-orange hover:bg-muksta-red disabled:opacity-50 px-4 py-2 rounded text-base shadow-lg"
               >
-                {createPostMutation.isPending ? '공유 중...' : '공유'}
+                {createPostMutation.isPending ? '공유 중...' : '🍴 맛집 공유'}
               </button>
             ) : null}
           </div>
@@ -280,14 +282,14 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
 
 
         {/* Content */}
-        <div className="flex flex-col md:flex-row h-[calc(70vh-60px)] md:h-[calc(90vh-60px)]">
+        <div className="flex flex-col md:flex-row h-[400px] md:h-[500px]">
           {/* Image Section */}
           <div className="flex-1 bg-gray-50 flex items-center justify-center relative min-h-[200px] md:min-h-[400px]">
             {step === 'upload' ? (
               <div className="text-center p-4 md:p-8">
                 <Image size={48} className="mx-auto mb-3 text-gray-400 md:w-24 md:h-24" />
-                <p className="text-base md:text-xl mb-3 md:mb-4 hidden md:block">사진을 여기에 끌어다 놓으세요</p>
-                <p className="text-base md:text-xl mb-3 md:mb-4 md:hidden">사진과 동영상을 공유해보세요</p>
+                <p className="text-base md:text-xl mb-3 md:mb-4 hidden md:block text-mukstagram-dark">📸 맛있는 음식 사진을 여기에 끌어다 놓으세요</p>
+                <p className="text-base md:text-xl mb-3 md:mb-4 md:hidden text-mukstagram-dark">🍔 맛집 사진을 공유해보세요</p>
                 <button
                   onClick={() => {
                     if (fileInputRef.current) {
@@ -295,7 +297,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
                       fileInputRef.current.click();
                     }
                   }}
-                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                  className="bg-muksta-orange text-white px-4 py-2 rounded-lg hover:bg-muksta-red shadow-md transition-all transform hover:scale-105"
                 >
                   <span className="hidden md:inline">컴퓨터에서 선택</span>
                   <span className="md:hidden">갤러리에서 선택</span>
@@ -435,7 +437,8 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.getElementById('root')!
   );
 };
 

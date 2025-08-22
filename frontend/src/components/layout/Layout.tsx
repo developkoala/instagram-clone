@@ -7,7 +7,7 @@ const Layout: React.FC = () => {
   return (
     <div className="min-h-screen bg-instagram-secondary">
       <Header />
-      <main className="pb-12 md:pb-0">
+      <main className="pt-14 pb-12 md:pb-0">
         <Outlet />
       </main>
       <MobileBottomNav />

@@ -291,11 +291,11 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
                   <img
                     src={getImageUrl(user && user.username === post.user.username ? user.profile_picture : post.user.profile_picture)}
                     alt={post.user.username}
-                    className="w-10 h-10 rounded-full object-cover"
+                    className="w-10 h-10 object-cover border-2 border-mukstagram-border"
                     key={forceUpdate}
                   />
                 ) : (
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-sm font-semibold text-white">
+                  <div className="w-10 h-10 bg-gradient-to-br from-mukstagram-primary to-mukstagram-accent flex items-center justify-center text-sm font-semibold text-white border-2 border-mukstagram-border">
                     {post.user.username?.[0]?.toUpperCase()}
                   </div>
                 )}
@@ -346,11 +346,11 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
                   <img
                     src={getImageUrl(user && user.username === post.user.username ? user.profile_picture : post.user.profile_picture)}
                     alt={post.user.username}
-                    className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                    className="w-8 h-8 object-cover flex-shrink-0 border border-mukstagram-border"
                     key={`${forceUpdate}-caption`}
                   />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-sm font-semibold flex-shrink-0 text-white">
+                  <div className="w-8 h-8 bg-gradient-to-br from-mukstagram-primary to-mukstagram-accent flex items-center justify-center text-sm font-semibold flex-shrink-0 text-white border border-mukstagram-border">
                     {post.user.username?.[0]?.toUpperCase()}
                   </div>
                 )}
@@ -381,10 +381,10 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
                       <img
                         src={getImageUrl(c.user.profile_picture)}
                         alt={c.user?.username}
-                        className="w-8 h-8 rounded-full object-cover"
+                        className="w-8 h-8 object-cover border border-mukstagram-border"
                       />
                     ) : (
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-sm font-semibold text-white">
+                      <div className="w-8 h-8 bg-gradient-to-br from-mukstagram-primary to-mukstagram-accent flex items-center justify-center text-sm font-semibold text-white border border-mukstagram-border">
                         {c.user?.username?.[0]?.toUpperCase()}
                       </div>
                     )}

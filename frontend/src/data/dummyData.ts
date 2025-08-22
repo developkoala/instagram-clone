@@ -20,7 +20,7 @@ export const dummyUsers: User[] = [
     full_name: '이지우',
     email: 'jiwoo@example.com',
     profile_picture: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop',
-    bio: '여행과 음식을 사랑해요 ✈️🍕',
+    bio: '여행과 음식을 사랑해요 ✈️🍔',
     website: '',
     is_private: false,
     is_verified: true,

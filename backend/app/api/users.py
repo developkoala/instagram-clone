@@ -23,33 +23,43 @@ router = APIRouter(prefix="/api/users", tags=["Users"])
 @router.get("/profile")
 async def get_current_user_profile(current_user: dict = Depends(get_current_user)):
     """현재 사용자 프로필 조회"""
-    # 팔로워/팔로잉 수 조회
-    followers_count = execute_query(
-        "SELECT COUNT(*) as count FROM follows WHERE following_id = %s",
-        (current_user['id'],), fetch_one=True
-    )['count']
-    
-    following_count = execute_query(
-        "SELECT COUNT(*) as count FROM follows WHERE follower_id = %s",
-        (current_user['id'],), fetch_one=True
-    )['count']
-    
-    posts_count = execute_query(
-        "SELECT COUNT(*) as count FROM posts WHERE user_id = %s",
-        (current_user['id'],), fetch_one=True
-    )['count']
-    
-    return {
-        "id": current_user['id'],
-        "username": current_user['username'],
-        "email": current_user['email'],
-        "bio": current_user['bio'],
-        "profile_picture": current_user['profile_picture'],
-        "website": current_user['website'],
-        "followers_count": followers_count,
-        "following_count": following_count,
-        "posts_count": posts_count
-    }
+    try:
+        # 팔로워/팔로잉 수 조회
+        followers_count_result = execute_query(
+            "SELECT COUNT(*) as count FROM follows WHERE following_id = %s",
+            (current_user['id'],), fetch_one=True
+        )
+        followers_count = followers_count_result['count'] if followers_count_result else 0
+        
+        following_count_result = execute_query(
+            "SELECT COUNT(*) as count FROM follows WHERE follower_id = %s",
+            (current_user['id'],), fetch_one=True
+        )
+        following_count = following_count_result['count'] if following_count_result else 0
+        
+        posts_count_result = execute_query(
+            "SELECT COUNT(*) as count FROM posts WHERE user_id = %s",
+            (current_user['id'],), fetch_one=True
+        )
+        posts_count = posts_count_result['count'] if posts_count_result else 0
+        
+        return {
+            "id": current_user.get('id', ''),
+            "username": current_user.get('username', ''),
+            "email": current_user.get('email', ''),
+            "bio": current_user.get('bio', ''),
+            "profile_picture": current_user.get('profile_picture', ''),
+            "website": current_user.get('website', ''),
+            "followers_count": followers_count,
+            "following_count": following_count,
+            "posts_count": posts_count
+        }
+    except Exception as e:
+        print(f"Error in get_current_user_profile: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get user profile: {str(e)}"
+        )
 
 @router.get("/suggestions")
 async def get_user_suggestions(

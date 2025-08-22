@@ -30,8 +30,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const user = await authService.getCurrentUser();
           setUser(user);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Failed to get current user:', error);
+        // 500 에러이거나 403 에러인 경우, 토큰을 제거하고 로그아웃 처리
+        if (error.response?.status === 500 || error.response?.status === 403) {
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('refresh_token');
+          setUser(null);
+        }
       } finally {
         setLoading(false);
       }

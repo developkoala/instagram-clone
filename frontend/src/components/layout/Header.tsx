@@ -15,8 +15,30 @@ const Header: React.FC = () => {
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [hasNewNotification, setHasNewNotification] = useState(false);
   const [hasNewMessage, setHasNewMessage] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // 스크롤 시 헤더 숨김/표시
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      if (currentScrollY < lastScrollY || currentScrollY < 100) {
+        // 위로 스크롤 또는 상단 근처
+        setIsVisible(true);
+      } else if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        // 아래로 스크롤
+        setIsVisible(false);
+      }
+      
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
 
   // 알림 구독
   useEffect(() => {
@@ -90,12 +112,15 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-instagram-border">
+    <header className={`fixed w-full top-0 z-50 bg-white border-b border-muksta-border shadow-sm transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
       <div className="max-w-5xl mx-auto px-4">
-        <div className="flex items-center justify-between h-14">
+        <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="text-2xl font-semibold">
-            Muksta
+          <Link to="/" className="flex items-center space-x-3 group">
+            <span className="text-2xl transition-transform group-hover:rotate-12">🍴</span>
+            <span className="text-2xl transition-transform group-hover:scale-110">🍽️</span>
+            <span className="text-2xl transition-transform group-hover:-rotate-12">🔪</span>
+            <span className="text-2xl font-bold muksta-text-gradient ml-2">먹스타그램</span>
           </Link>
 
           {/* Search Bar - Desktop */}
@@ -104,72 +129,50 @@ const Header: React.FC = () => {
           </div>
 
           {/* Navigation Icons */}
-          <nav className="flex items-center space-x-5">
-            <Link to="/" className="hover:opacity-70">
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-              </svg>
+          <nav className="flex items-center space-x-6">
+            <Link to="/" className="hover:scale-110 transition-all group relative" title="맛피드">
+              <span className="text-2xl">🏠</span>
+              <span className="absolute -bottom-5 left-1/2 transform -translate-x-1/2 text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-muksta-dark">맛피드</span>
             </Link>
 
             <Link 
               to="/messages" 
-              className="hover:opacity-70 relative"
+              className="hover:scale-110 transition-all group relative"
               onClick={() => setHasNewMessage(false)}
+              title="맛톡"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                />
-              </svg>
+              <span className="text-2xl">💬</span>
               {hasNewMessage && (
-                <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>
+                <div className="absolute -top-1 -right-1 w-2 h-2 bg-muksta-red rounded-full"></div>
               )}
+              <span className="absolute -bottom-5 left-1/2 transform -translate-x-1/2 text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-muksta-dark">맛톡</span>
             </Link>
 
             <button 
               onClick={() => user ? setShowCreatePost(true) : navigate('/login')}
-              className="hover:opacity-70"
+              className="hover:scale-110 transition-all group relative"
+              title="먹로그 작성"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
+              <span className="text-2xl">✏️</span>
+              <span className="absolute -bottom-5 left-1/2 transform -translate-x-1/2 text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-muksta-dark">먹로그 작성</span>
             </button>
 
-            <Link to="/explore" className="hover:opacity-70">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
+            <Link to="/explore" className="hover:scale-110 transition-all group relative" title="맛집 탐험">
+              <span className="text-2xl">🧭</span>
+              <span className="absolute -bottom-5 left-1/2 transform -translate-x-1/2 text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-muksta-dark">맛집 탐험</span>
             </Link>
 
             <Link 
               to="/notifications" 
-              className="hover:opacity-70 relative"
+              className="hover:scale-110 transition-all group relative"
               onClick={() => setHasNewNotification(false)}
+              title="맛알림"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                />
-              </svg>
+              <span className="text-2xl">🔔</span>
               {hasNewNotification && (
-                <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>
+                <div className="absolute -top-1 -right-1 w-2 h-2 bg-muksta-red rounded-full"></div>
               )}
+              <span className="absolute -bottom-5 left-1/2 transform -translate-x-1/2 text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-muksta-dark">맛알림</span>
             </Link>
 
             {/* Profile Dropdown */}
@@ -177,7 +180,7 @@ const Header: React.FC = () => {
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setShowDropdown(!showDropdown)}
-                  className="block w-8 h-8 rounded-full overflow-hidden border border-instagram-border hover:scale-110 transition-transform"
+                  className="block w-8 h-8 overflow-hidden border-2 border-mukstagram-primary hover:scale-110 transition-transform shadow-md"
                 >
                   {user?.profile_picture ? (
                     <img
@@ -193,74 +196,52 @@ const Header: React.FC = () => {
                       }}
                     />
                   ) : null}
-                  <div className={`w-full h-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-sm font-semibold text-white ${user?.profile_picture ? 'hidden' : ''}`}>
+                  <div className={`w-full h-full bg-gradient-to-br from-muksta-orange to-muksta-red flex items-center justify-center text-sm font-semibold text-white ${user?.profile_picture ? 'hidden' : ''}`}>
                     {user?.username?.[0]?.toUpperCase() || 'U'}
                   </div>
                 </button>
 
                 {showDropdown && (
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-instagram-border py-2">
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-muksta-border py-2">
                   <Link
                     to={`/profile/${user?.username || 'my_account'}`}
-                    className="block px-4 py-2 hover:bg-instagram-lightGray"
+                    className="block px-4 py-2 hover:bg-muksta-lightGray transition-colors"
                     onClick={() => setShowDropdown(false)}
                   >
                     <div className="flex items-center space-x-3">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={1.5}
-                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                        />
-                      </svg>
-                      <span>프로필</span>
+                      <span className="text-lg">👤</span>
+                      <span className="text-muksta-dark">맛프로필</span>
                     </div>
                   </Link>
 
                   <button
-                    className="w-full text-left px-4 py-2 hover:bg-instagram-lightGray"
+                    className="w-full text-left px-4 py-2 hover:bg-muksta-lightGray transition-colors"
                     onClick={() => fileRef.current?.click()}
                   >
                     <div className="flex items-center space-x-3">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V8a2 2 0 00-2-2H8l-2 2H4a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                      </svg>
-                      <span>프로필 사진 변경</span>
+                      <span className="text-lg">📷</span>
+                      <span className="text-muksta-dark">프로필 사진 변경</span>
                     </div>
                   </button>
 
                   <Link
                     to="/settings"
-                    className="block px-4 py-2 hover:bg-instagram-lightGray"
+                    className="block px-4 py-2 hover:bg-muksta-lightGray transition-colors"
                     onClick={() => setShowDropdown(false)}
                   >
                     <div className="flex items-center space-x-3">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={1.5}
-                          d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={1.5}
-                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                      </svg>
-                      <span>설정</span>
+                      <span className="text-lg">⚙️</span>
+                      <span className="text-muksta-dark">설정</span>
                     </div>
                   </Link>
 
-                  <div className="border-t border-instagram-border my-2"></div>
+                  <div className="border-t border-muksta-border my-2"></div>
 
                   <button
                     onClick={handleLogout}
-                    className="block w-full text-left px-4 py-2 hover:bg-instagram-lightGray"
+                    className="block w-full text-left px-4 py-2 hover:bg-red-50 text-muksta-red transition-colors"
                   >
-                    로그아웃
+                    🚪 로그아웃
                   </button>
                 </div>
                 )}
@@ -268,7 +249,7 @@ const Header: React.FC = () => {
             ) : (
               <Link 
                 to="/login" 
-                className="text-sm font-semibold text-instagram-accent hover:text-blue-700"
+                className="text-sm font-semibold text-white bg-muksta-orange px-4 py-2 rounded-xl hover:bg-muksta-red transition-all"
               >
                 로그인
               </Link>

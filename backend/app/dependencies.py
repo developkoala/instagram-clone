@@ -8,10 +8,17 @@ from typing import Optional
 from app.utils.security import verify_token
 from app.utils.database_utils import get_user_by_id
 
-security = HTTPBearer()
+security = HTTPBearer(auto_error=False)
 
-async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+async def get_current_user(credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)):
     """현재 인증된 사용자 가져오기"""
+    if not credentials:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
     token = credentials.credentials
     
     print(f"Token verification for: {token[:20]}..." if token else "No token")

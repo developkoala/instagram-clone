@@ -292,10 +292,10 @@ const Messages: React.FC = () => {
                       key={`list-${updateKey}`}
                       src={getImageUrl(user && user.username === conversation.participant.username ? user.profile_picture : conversation.participant.profile_picture)}
                       alt={conversation.participant.username}
-                      className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover"
+                      className="w-12 h-12 md:w-14 md:h-14 object-cover border-2 border-mukstagram-border"
                     />
                   ) : (
-                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-semibold">
+                    <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-mukstagram-primary to-mukstagram-accent flex items-center justify-center text-white font-semibold border-2 border-mukstagram-border">
                       {conversation.participant.username?.[0]?.toUpperCase()}
                     </div>
                   )}
@@ -356,10 +356,10 @@ const Messages: React.FC = () => {
                   key={`header-${updateKey}`}
                   src={getImageUrl(user && user.username === selectedConversation.participant.username ? user.profile_picture : selectedConversation.participant.profile_picture)}
                   alt={selectedConversation.participant.username}
-                  className="w-8 h-8 md:w-10 md:h-10 rounded-full object-cover"
+                  className="w-8 h-8 md:w-10 md:h-10 object-cover border border-mukstagram-border"
                 />
               ) : (
-                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-semibold text-sm md:text-base">
+                <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-mukstagram-primary to-mukstagram-accent flex items-center justify-center text-white font-semibold text-sm md:text-base border border-mukstagram-border">
                   {selectedConversation.participant.username?.[0]?.toUpperCase()}
                 </div>
               )}
@@ -379,10 +379,10 @@ const Messages: React.FC = () => {
                     key={`profile-${updateKey}`}
                     src={getImageUrl(user && user.username === selectedConversation.participant.username ? user.profile_picture : selectedConversation.participant.profile_picture)}
                     alt={selectedConversation.participant.username}
-                    className="w-24 h-24 rounded-full object-cover mx-auto mb-4"
+                    className="w-24 h-24 object-cover mx-auto mb-4 border-4 border-mukstagram-primary"
                   />
                 ) : (
-                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center mx-auto mb-4 text-white font-semibold text-2xl">
+                  <div className="w-24 h-24 bg-gradient-to-br from-mukstagram-primary to-mukstagram-accent flex items-center justify-center mx-auto mb-4 text-white font-semibold text-2xl border-4 border-mukstagram-primary">
                     {selectedConversation.participant.username?.[0]?.toUpperCase()}
                   </div>
                 )}
@@ -417,10 +417,10 @@ const Messages: React.FC = () => {
                               key={`msg-${updateKey}-${msg.id}`}
                               src={getImageUrl(user && user.username === msg.sender.username ? user.profile_picture : msg.sender.profile_picture)}
                               alt={msg.sender.username}
-                              className="w-6 h-6 md:w-8 md:h-8 rounded-full object-cover"
+                              className="w-6 h-6 md:w-8 md:h-8 object-cover border border-mukstagram-border"
                             />
                           ) : (
-                            <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-semibold text-xs">
+                            <div className="w-6 h-6 md:w-8 md:h-8 bg-gradient-to-br from-mukstagram-primary to-mukstagram-accent flex items-center justify-center text-white font-semibold text-xs border border-mukstagram-border">
                               {msg.sender.username?.[0]?.toUpperCase()}
                             </div>
                           )}
