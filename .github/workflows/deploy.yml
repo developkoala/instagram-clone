@@ -148,7 +148,7 @@ jobs:
               # node_modules 설치
               if [ ! -d "node_modules" ] || [ "package.json" -nt "node_modules" ]; then
                   log_info "Node 패키지 설치 중..."
-                  npm ci --silent
+                  npm ci --legacy-peer-deps --silent
               fi
               
               # 프로덕션 빌드 (strict 모드로 빌드)
