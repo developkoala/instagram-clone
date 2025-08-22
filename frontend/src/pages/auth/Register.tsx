@@ -72,15 +72,15 @@ const Register: React.FC = () => {
     formData.password === formData.confirmPassword;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-mukstagram-secondary via-white to-mukstagram-lightGray px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-muksta-cream via-white to-muksta-lightGray px-4">
       <div className="max-w-sm w-full space-y-3">
         {/* Register Form */}
         <div className="bg-white border border-instagram-border rounded-sm p-10">
           <div className="text-center mb-6">
-            <h1 className="text-5xl font-bold text-mukstagram-primary mb-2">
+            <h1 className="text-5xl font-bold text-muksta-orange mb-2">
               🍽️ 먹스타그램
             </h1>
-            <p className="text-mukstagram-dark font-medium">
+            <p className="text-muksta-dark font-medium">
               맛집 탐험과 음식 사진을 공유하는 커뮤니티
             </p>
           </div>
@@ -145,7 +145,7 @@ const Register: React.FC = () => {
             <button
               type="submit"
               disabled={!isFormValid || loading}
-              className="w-full bg-mukstagram-primary text-white font-semibold py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-mukstagram-accent transition-all transform hover:scale-105 shadow-md"
+              className="w-full bg-muksta-orange text-white font-semibold py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muksta-red transition-all transform hover:scale-105 shadow-md"
             >
               {loading ? '가입 중...' : '가입'}
             </button>
@@ -160,7 +160,7 @@ const Register: React.FC = () => {
         <div className="bg-white border border-instagram-border rounded-sm p-6 text-center">
           <p className="text-sm">
             계정이 있으신가요?{' '}
-            <Link to="/login" className="text-mukstagram-primary font-bold hover:text-mukstagram-accent transition-colors">
+            <Link to="/login" className="text-muksta-orange font-bold hover:text-muksta-red transition-colors">
               로그인
             </Link>
           </p>

@@ -22,7 +22,7 @@ const Stories: React.FC = () => {
         <button className="flex-shrink-0" onClick={handleStoryClick}>
           <div className="flex flex-col items-center space-y-1">
             <div className="relative">
-              <div className="bg-white p-[2px] border-2 border-mukstagram-primary">
+              <div className="bg-white p-[2px] border-2 border-muksta-orange">
                 {user?.profile_picture ? (
                   <img
                     src={getImageUrl(user.profile_picture) || ''}
@@ -36,11 +36,11 @@ const Stories: React.FC = () => {
                     }}
                   />
                 ) : null}
-                <div className={`w-14 h-14 bg-gradient-to-br from-mukstagram-primary to-mukstagram-accent flex items-center justify-center text-lg font-semibold text-white ${user?.profile_picture ? 'hidden' : ''}`}>
+                <div className={`w-14 h-14 bg-gradient-to-br from-muksta-orange to-muksta-red flex items-center justify-center text-lg font-semibold text-white ${user?.profile_picture ? 'hidden' : ''}`}>
                   {user?.username?.[0]?.toUpperCase() || 'U'}
                 </div>
               </div>
-              <div className="absolute bottom-0 right-0 bg-mukstagram-primary rounded-full p-1 border-2 border-white">
+              <div className="absolute bottom-0 right-0 bg-muksta-orange rounded-full p-1 border-2 border-white">
                 <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" />
                 </svg>
@@ -60,7 +60,7 @@ const Stories: React.FC = () => {
               onClick={() => navigate(`/profile/${story.user.username}`)}
             >
               <div className="flex flex-col items-center space-y-1">
-                <div className={`relative ${hasUnviewed ? 'p-[2px] bg-gradient-to-tr from-mukstagram-yellow via-mukstagram-primary to-mukstagram-accent' : 'p-[2px] bg-gray-300'}`}>
+                <div className={`relative ${hasUnviewed ? 'p-[2px] bg-gradient-to-tr from-mukstagram-yellow via-muksta-orange to-muksta-red' : 'p-[2px] bg-gray-300'}`}>
                   <div className="bg-white p-[2px]">
                     <img
                       src={story.user.profile_picture}

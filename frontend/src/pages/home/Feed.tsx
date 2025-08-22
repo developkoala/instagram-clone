@@ -200,7 +200,7 @@ const Feed: React.FC = () => {
                 {showSuggestions && suggestedUsers.length > 0 && (
                   <div className="bg-white border border-instagram-border rounded-lg mt-4 p-6">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-semibold text-mukstagram-dark">🍽️ 맛집 헌터 추천</h3>
+                      <h3 className="font-semibold text-muksta-dark">🍽️ 맛집 헌터 추천</h3>
                       <button 
                         onClick={() => setShowSuggestions(false)}
                         className="text-sm text-instagram-gray hover:text-black"
@@ -327,7 +327,7 @@ const Feed: React.FC = () => {
               <div className="flex items-center space-x-4 mb-6">
                 <Link 
                   to={`/profile/${user?.username || 'my_account'}`}
-                  className="block w-14 h-14 overflow-hidden bg-gradient-to-br from-mukstagram-primary to-mukstagram-accent flex-shrink-0 border-2 border-mukstagram-primary"
+                  className="block w-14 h-14 overflow-hidden bg-gradient-to-br from-muksta-orange to-muksta-red flex-shrink-0 border-2 border-muksta-orange"
                 >
                   {user?.profile_picture ? (
                     <img 
@@ -358,7 +358,7 @@ const Feed: React.FC = () => {
               {sidebarSuggestions.length > 0 && (
                 <div className="mb-4">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-semibold text-mukstagram-dark">
+                    <h3 className="text-sm font-semibold text-muksta-dark">
                       🍽️ 맛집 헌터 추천
                     </h3>
                     <Link 
@@ -383,7 +383,7 @@ const Feed: React.FC = () => {
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-mukstagram-primary to-mukstagram-accent flex items-center justify-center">
+                            <div className="w-full h-full bg-gradient-to-br from-muksta-orange to-muksta-red flex items-center justify-center">
                               <span className="text-xs font-semibold text-white">
                                 {suggestedUser.username[0].toUpperCase()}
                               </span>
@@ -405,7 +405,7 @@ const Feed: React.FC = () => {
                         </div>
                         <button 
                           onClick={() => handleFollowUser(suggestedUser.id, suggestedUser.username, true)}
-                          className="text-mukstagram-primary text-xs font-semibold hover:text-mukstagram-accent ml-2"
+                          className="text-muksta-orange text-xs font-semibold hover:text-muksta-red ml-2"
                         >
                           팔로우
                         </button>

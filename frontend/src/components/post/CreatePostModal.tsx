@@ -257,7 +257,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
           >
             {step === 'upload' ? <X size={24} /> : <ArrowLeft size={24} />}
           </button>
-          <h2 className="font-semibold flex-1 text-center px-2 text-mukstagram-dark">
+          <h2 className="font-semibold flex-1 text-center px-2 text-muksta-dark">
             {step === 'upload' ? '🍴 맛집 사진 공유하기' : step === 'rotate' ? '편집' : '🍴 맛집 소개'}
           </h2>
           <div className="flex-shrink-0 min-w-[80px] flex justify-end">
@@ -288,8 +288,8 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
             {step === 'upload' ? (
               <div className="text-center p-4 md:p-8">
                 <Image size={48} className="mx-auto mb-3 text-gray-400 md:w-24 md:h-24" />
-                <p className="text-base md:text-xl mb-3 md:mb-4 hidden md:block text-mukstagram-dark">📸 맛있는 음식 사진을 여기에 끌어다 놓으세요</p>
-                <p className="text-base md:text-xl mb-3 md:mb-4 md:hidden text-mukstagram-dark">🍔 맛집 사진을 공유해보세요</p>
+                <p className="text-base md:text-xl mb-3 md:mb-4 hidden md:block text-muksta-dark">📸 맛있는 음식 사진을 여기에 끌어다 놓으세요</p>
+                <p className="text-base md:text-xl mb-3 md:mb-4 md:hidden text-muksta-dark">🍔 맛집 사진을 공유해보세요</p>
                 <button
                   onClick={() => {
                     if (fileInputRef.current) {

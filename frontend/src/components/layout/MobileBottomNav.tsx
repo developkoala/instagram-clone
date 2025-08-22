@@ -16,8 +16,8 @@ const MobileBottomNav: React.FC = () => {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-muksta-border md:hidden z-50 safe-bottom">
-      <div className="flex items-center justify-around h-14">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-muksta-border md:hidden z-50 pb-safe">
+      <div className="flex items-center justify-around h-16 pb-2">
         <Link
           to="/"
           className={`flex items-center justify-center w-full h-full transition-all ${

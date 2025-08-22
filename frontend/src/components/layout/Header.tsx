@@ -180,7 +180,7 @@ const Header: React.FC = () => {
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setShowDropdown(!showDropdown)}
-                  className="block w-7 h-7 sm:w-8 sm:h-8 overflow-hidden border-2 border-mukstagram-primary hover:scale-110 transition-transform shadow-md"
+                  className="block w-7 h-7 sm:w-8 sm:h-8 overflow-hidden border-2 border-muksta-orange hover:scale-110 transition-transform shadow-md"
                 >
                   {user?.profile_picture ? (
                     <img

@@ -56,15 +56,15 @@ const Login: React.FC = () => {
         description="먹스타그램에 로그인하여 맛있는 음식 사진과 맛집 정보를 공유하세요."
         keywords="먹스타그램 로그인, 음식 SNS 로그인, 맛집 공유"
       />
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-mukstagram-secondary via-white to-mukstagram-lightGray px-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-muksta-cream via-white to-muksta-lightGray px-4">
       <div className="max-w-sm w-full space-y-3">
         {/* Login Form */}
         <div className="bg-white border border-instagram-border rounded-sm p-10">
           <div className="text-center mb-8">
-            <h1 className="text-5xl font-bold text-mukstagram-primary mb-2">
+            <h1 className="text-5xl font-bold text-muksta-orange mb-2">
               🍽️ 먹스타그램
             </h1>
-            <p className="text-mukstagram-dark text-sm">
+            <p className="text-muksta-dark text-sm">
               맛있는 순간을 공유하세요
             </p>
           </div>
@@ -103,7 +103,7 @@ const Login: React.FC = () => {
             <button
               type="submit"
               disabled={!isFormValid || loading}
-              className="w-full bg-mukstagram-primary text-white font-semibold py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-mukstagram-accent transition-all transform hover:scale-105 shadow-md"
+              className="w-full bg-muksta-orange text-white font-semibold py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muksta-red transition-all transform hover:scale-105 shadow-md"
             >
               {loading ? '로그인 중...' : '로그인'}
             </button>
@@ -111,7 +111,7 @@ const Login: React.FC = () => {
 
           <Link
             to="/forgot-password"
-            className="block text-center text-mukstagram-accent text-xs mt-6 hover:text-mukstagram-primary"
+            className="block text-center text-muksta-brown text-xs mt-6 hover:text-muksta-orange"
           >
             비밀번호를 잊으셨나요?
           </Link>
@@ -121,7 +121,7 @@ const Login: React.FC = () => {
         <div className="bg-white border border-instagram-border rounded-sm p-6 text-center">
           <p className="text-sm">
             계정이 없으신가요?{' '}
-            <Link to="/register" className="text-mukstagram-primary font-bold hover:text-mukstagram-accent transition-colors">
+            <Link to="/register" className="text-muksta-orange font-bold hover:text-muksta-red transition-colors">
               맛집 탐험 시작하기
             </Link>
           </p>

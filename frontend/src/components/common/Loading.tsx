@@ -10,7 +10,7 @@ const Loading: React.FC = () => {
           <div className="absolute top-0 left-0 text-5xl animate-spin-slow opacity-50">🍕</div>
           <div className="absolute top-0 left-0 text-5xl animate-pulse-slow opacity-30">🍜</div>
         </div>
-        <p className="text-mukstagram-primary font-medium animate-pulse">맛있는 순간을 불러오는 중...</p>
+        <p className="text-muksta-orange font-medium animate-pulse">맛있는 순간을 불러오는 중...</p>
       </div>
     </div>
   );

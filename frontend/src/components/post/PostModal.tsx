@@ -295,7 +295,7 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
                     key={forceUpdate}
                   />
                 ) : (
-                  <div className="w-10 h-10 bg-gradient-to-br from-mukstagram-primary to-mukstagram-accent flex items-center justify-center text-sm font-semibold text-white border-2 border-mukstagram-border">
+                  <div className="w-10 h-10 bg-gradient-to-br from-muksta-orange to-muksta-red flex items-center justify-center text-sm font-semibold text-white border-2 border-mukstagram-border">
                     {post.user.username?.[0]?.toUpperCase()}
                   </div>
                 )}
@@ -350,7 +350,7 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
                     key={`${forceUpdate}-caption`}
                   />
                 ) : (
-                  <div className="w-8 h-8 bg-gradient-to-br from-mukstagram-primary to-mukstagram-accent flex items-center justify-center text-sm font-semibold flex-shrink-0 text-white border border-mukstagram-border">
+                  <div className="w-8 h-8 bg-gradient-to-br from-muksta-orange to-muksta-red flex items-center justify-center text-sm font-semibold flex-shrink-0 text-white border border-mukstagram-border">
                     {post.user.username?.[0]?.toUpperCase()}
                   </div>
                 )}
@@ -384,7 +384,7 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
                         className="w-8 h-8 object-cover border border-mukstagram-border"
                       />
                     ) : (
-                      <div className="w-8 h-8 bg-gradient-to-br from-mukstagram-primary to-mukstagram-accent flex items-center justify-center text-sm font-semibold text-white border border-mukstagram-border">
+                      <div className="w-8 h-8 bg-gradient-to-br from-muksta-orange to-muksta-red flex items-center justify-center text-sm font-semibold text-white border border-mukstagram-border">
                         {c.user?.username?.[0]?.toUpperCase()}
                       </div>
                     )}

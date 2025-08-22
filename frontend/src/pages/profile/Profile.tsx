@@ -150,7 +150,7 @@ const Profile: React.FC = () => {
       <header className="mb-12">
         <div className="flex flex-col md:flex-row items-center md:items-start">
           {/* Profile Picture */}
-          <div className="w-32 h-32 md:w-40 md:h-40 overflow-hidden mb-4 md:mb-0 md:mr-12 relative border-4 border-mukstagram-primary shadow-lg">
+          <div className="w-32 h-32 md:w-40 md:h-40 overflow-hidden mb-4 md:mb-0 md:mr-12 relative border-4 border-muksta-orange shadow-lg">
             {(isOwnProfile && authUser?.profile_picture) || (!isOwnProfile && profile.profile_picture) ? (
               <img
                 key={updateKey}
@@ -162,7 +162,7 @@ const Profile: React.FC = () => {
                 }}
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-mukstagram-primary to-mukstagram-accent flex items-center justify-center">
+              <div className="w-full h-full bg-gradient-to-br from-muksta-orange to-muksta-red flex items-center justify-center">
                 <span className="text-3xl text-white font-semibold">
                   {profile.username.charAt(0).toUpperCase()}
                 </span>

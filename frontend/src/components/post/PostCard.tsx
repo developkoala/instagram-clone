@@ -137,7 +137,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, onClick }) => {
   };
 
   return (
-    <article className="bg-gradient-to-br from-white to-mukstagram-secondary border-2 md:border-4 md:rounded-2xl border-mukstagram-border mb-8 shadow-lg hover:shadow-2xl transition-all hover:scale-[1.02] duration-300 overflow-hidden">
+    <article className="bg-gradient-to-br from-white to-muksta-cream border-2 md:border-4 md:rounded-2xl border-mukstagram-border mb-8 shadow-lg hover:shadow-2xl transition-all hover:scale-[1.02] duration-300 overflow-hidden">
       {/* Header */}
       <header className="flex items-center p-3">
         <div className="flex items-center space-x-3">
@@ -159,7 +159,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, onClick }) => {
           </Link>
           <div>
             <div>
-              <Link to={`/profile/${post.user.username}`} className="font-bold text-base text-mukstagram-dark hover:text-mukstagram-primary transition-colors">
+              <Link to={`/profile/${post.user.username}`} className="font-bold text-base text-muksta-dark hover:text-muksta-orange transition-colors">
                 {post.user.username}
               </Link>
               <div className="flex items-center gap-1 text-xs text-mukstagram-gray">
@@ -177,10 +177,10 @@ const PostCard: React.FC<PostCardProps> = ({ post, onClick }) => {
                   <span className="text-xs bg-mukstagram-green text-white px-2 py-0.5 rounded-full">🍚 한식</span>
                 )}
                 {post.location.includes('일식') && (
-                  <span className="text-xs bg-mukstagram-accent text-white px-2 py-0.5 rounded-full">🍱 일식</span>
+                  <span className="text-xs bg-muksta-red text-white px-2 py-0.5 rounded-full">🍱 일식</span>
                 )}
                 {(post.location.includes('양식') || post.location.includes('레스토랑')) && (
-                  <span className="text-xs bg-mukstagram-primary text-white px-2 py-0.5 rounded-full">🍝 양식</span>
+                  <span className="text-xs bg-muksta-orange text-white px-2 py-0.5 rounded-full">🍝 양식</span>
                 )}
               </div>
             )}
