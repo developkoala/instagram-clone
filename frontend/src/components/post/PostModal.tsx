@@ -368,7 +368,7 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
                     <span className="whitespace-pre-wrap">{post.caption}</span>
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
-                    {formatDistanceToNow(new Date(post.created_at))}
+                    {formatDistanceToNow(post.created_at)}
                   </p>
                 </div>
               </div>

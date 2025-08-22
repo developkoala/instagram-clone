@@ -2,7 +2,11 @@ from sqlalchemy import Column, String, Text, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import uuid
+import pytz
 from app.database import Base
+
+# 한국 시간대
+KST = pytz.timezone('Asia/Seoul')
 
 class Comment(Base):
     __tablename__ = "comments"
@@ -12,8 +16,8 @@ class Comment(Base):
     user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
     parent_comment_id = Column(String(36), ForeignKey("comments.id"), nullable=True)
     content = Column(Text, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(KST))
+    updated_at = Column(DateTime, default=lambda: datetime.now(KST), onupdate=lambda: datetime.now(KST))
     
     # Relationships
     post = relationship("Post", back_populates="comments")

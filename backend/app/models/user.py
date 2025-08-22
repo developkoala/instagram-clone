@@ -1,6 +1,10 @@
 from sqlalchemy import Column, String, Boolean, Text, DateTime
 from sqlalchemy.orm import relationship
 from datetime import datetime
+import pytz
+
+# 한국 시간대
+KST = pytz.timezone('Asia/Seoul')
 import uuid
 from app.database import Base
 
@@ -16,8 +20,8 @@ class User(Base):
     is_private = Column(Boolean, default=False)
     is_verified = Column(Boolean, default=False)
     hashed_password = Column(String(255), nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(KST))
+    updated_at = Column(DateTime, default=lambda: datetime.now(KST), onupdate=lambda: datetime.now(KST))
     
     # Relationships
     posts = relationship("Post", back_populates="user", cascade="all, delete-orphan")

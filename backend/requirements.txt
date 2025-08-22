@@ -11,3 +11,4 @@ email-validator
 sqlalchemy
 pymysql
 psycopg2-binary
+pytz

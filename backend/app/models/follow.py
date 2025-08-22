@@ -1,6 +1,10 @@
 from sqlalchemy import Column, String, DateTime, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 from datetime import datetime
+import pytz
+
+# 한국 시간대
+KST = pytz.timezone('Asia/Seoul')
 import uuid
 from app.database import Base
 
@@ -10,7 +14,7 @@ class Follow(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     follower_id = Column(String(36), ForeignKey("users.id"), nullable=False)
     following_id = Column(String(36), ForeignKey("users.id"), nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(KST))
     
     # Unique constraint to prevent duplicate follows
     __table_args__ = (UniqueConstraint('follower_id', 'following_id', name='_follower_following'),)

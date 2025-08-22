@@ -1,6 +1,23 @@
-export function formatDistanceToNow(date: Date): string {
+/**
+ * UTC 시간을 한국 시간으로 변환
+ */
+export function toKST(dateString: string | Date): Date {
+  const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+  
+  // 서버에서 이미 KST로 저장하고 있지만, 
+  // 프론트엔드에서 UTC로 해석할 수 있으므로 명시적으로 처리
+  if (typeof dateString === 'string' && !dateString.includes('Z') && !dateString.includes('+')) {
+    // ISO 8601 형식이지만 타임존 정보가 없으면 KST로 가정
+    return new Date(dateString + '+09:00');
+  }
+  
+  return date;
+}
+
+export function formatDistanceToNow(date: Date | string): string {
+  const targetDate = toKST(date);
   const now = new Date();
-  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  const seconds = Math.floor((now.getTime() - targetDate.getTime()) / 1000);
   
   if (seconds < 60) {
     return `${seconds}초`;

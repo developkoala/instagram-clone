@@ -2,7 +2,11 @@ from sqlalchemy import Column, String, Text, Boolean, DateTime, ForeignKey, Inte
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import uuid
+import pytz
 from app.database import Base
+
+# 한국 시간대
+KST = pytz.timezone('Asia/Seoul')
 
 class Post(Base):
     __tablename__ = "posts"
@@ -13,8 +17,8 @@ class Post(Base):
     location = Column(String(100))
     is_archived = Column(Boolean, default=False)
     comments_disabled = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(KST))
+    updated_at = Column(DateTime, default=lambda: datetime.now(KST), onupdate=lambda: datetime.now(KST))
     
     # Relationships
     user = relationship("User", back_populates="posts")
