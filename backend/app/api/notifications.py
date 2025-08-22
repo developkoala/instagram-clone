@@ -93,7 +93,7 @@ async def get_notifications(
             notif['user_id'],
             str(notif.get('post_id', '')),
             str(notif.get('comment_id', '')),
-            notif['created_at'],
+            str(notif['created_at']),
             str(idx)
         ]
         unique_id = '_'.join(filter(None, unique_id_parts))
