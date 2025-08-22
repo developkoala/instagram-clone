@@ -11,7 +11,7 @@ const MobileBottomNav: React.FC = () => {
   const [showCreatePost, setShowCreatePost] = useState(false);
 
   const isActive = (path: string) => {
-    if (path === '/') return location.pathname === '/';
+    if (path === '/feed') return location.pathname === '/feed';
     return location.pathname.startsWith(path);
   };
 
@@ -19,13 +19,13 @@ const MobileBottomNav: React.FC = () => {
     <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-muksta-border md:hidden z-50 pb-safe">
       <div className="flex items-center justify-around h-16 pb-2">
         <Link
-          to="/"
+          to="/feed"
           className={`flex items-center justify-center w-full h-full transition-all ${
-            isActive('/') ? 'scale-110' : ''
+            isActive('/feed') ? 'scale-110' : ''
           }`}
         >
-          <span className={`text-2xl ${isActive('/') ? 'drop-shadow-md' : ''}`}>
-            {isActive('/') ? '🏠' : '🏘️'}
+          <span className={`text-2xl ${isActive('/feed') ? 'drop-shadow-md' : ''}`}>
+            {isActive('/feed') ? '🏠' : '🏘️'}
           </span>
         </Link>
 

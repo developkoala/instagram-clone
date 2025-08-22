@@ -130,7 +130,7 @@ const Header: React.FC = () => {
 
           {/* Navigation Icons */}
           <nav className="flex items-center space-x-2 sm:space-x-4 md:space-x-6">
-            <Link to="/" className="hover:scale-110 transition-all group relative p-1 sm:p-0" title="맛피드">
+            <Link to="/feed" className="hover:scale-110 transition-all group relative p-1 sm:p-0" title="맛피드">
               <span className="text-xl sm:text-2xl">🏠</span>
               <span className="hidden sm:block absolute -bottom-5 left-1/2 transform -translate-x-1/2 text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-muksta-dark">맛피드</span>
             </Link>
