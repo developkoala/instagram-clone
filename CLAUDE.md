@@ -4,7 +4,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Muksta is an Instagram clone - a full-stack social media application with React/TypeScript frontend and FastAPI/Python backend, featuring real-time messaging via WebSockets.
+Muksta is a fully-functional Instagram clone - a full-stack social media application with React 19/TypeScript frontend and FastAPI/Python backend, featuring real-time messaging via WebSockets.
+
+**Live Demo**: [https://muksta.com](https://muksta.com)
+**Repository**: [https://github.com/developkoala/instagram-clone](https://github.com/developkoala/instagram-clone)
 
 ## Essential Commands
 
@@ -30,18 +33,22 @@ npm run create-sample-data
 # Frontend
 cd frontend && npm run build:strict  # TypeScript strict mode check
 cd frontend && npm run lint          # ESLint check
+cd frontend && npm run build         # Production build test
 
 # Backend
-# No test runner configured - check for pytest or unittest setup before running tests
+cd backend && python -m pytest       # Run tests (if configured)
+cd backend && python -m mypy app/    # Type checking (if configured)
 ```
 
 ## Architecture
 
 ### Tech Stack
-- **Frontend**: React 19 + TypeScript + Vite + TailwindCSS + React Query + React Router v7
-- **Backend**: FastAPI + SQLAlchemy 2.0 + JWT Auth + SQLite/PostgreSQL
-- **Real-time**: WebSocket for messaging, notifications
-- **File Storage**: Local filesystem in `backend/uploads/`
+- **Frontend**: React 19 + TypeScript 5.6 + Vite 6 + TailwindCSS 3.4 + React Query (TanStack) + React Router v7
+- **Backend**: FastAPI + SQLAlchemy 2.0 + Pydantic v2 + JWT Auth + SQLite/PostgreSQL
+- **Real-time**: WebSocket for messaging, notifications, online status
+- **File Storage**: Local filesystem in `backend/uploads/` (S3 compatible in production)
+- **Process Management**: PM2 (production)
+- **CI/CD**: GitHub Actions
 
 ### Key Architecture Patterns
 
@@ -63,10 +70,12 @@ cd frontend && npm run lint          # ESLint check
 - Auto-reconnection with exponential backoff
 
 #### Authentication Flow
-1. Login/register returns JWT token
-2. Token stored in localStorage as `token`
-3. Axios interceptor adds `Authorization: Bearer <token>` header
-4. Backend validates via `get_current_user` dependency
+1. Login/register returns JWT access & refresh tokens
+2. Access token stored in localStorage as `access_token`
+3. Refresh token stored in localStorage as `refresh_token`
+4. Axios interceptor adds `Authorization: Bearer <token>` header
+5. Backend validates via `get_current_user` dependency
+6. Auto-refresh on 401 using refresh token
 
 ### Database Relationships
 - **Users** ↔ **Posts**: One-to-many (author)
@@ -78,9 +87,11 @@ cd frontend && npm run lint          # ESLint check
 ## Production Configuration
 
 Uses PM2 for process management (`ecosystem.config.js`):
-- Frontend served on port 3000
+- Frontend served on port 3000 (reverse proxied via Nginx)
 - Backend API on port 8000
 - Auto-restart and log management configured
+- SSL/HTTPS via Let's Encrypt
+- Domain: muksta.com
 
 ## Important Files to Know
 
@@ -114,13 +125,42 @@ Uses PM2 for process management (`ecosystem.config.js`):
 3. Dispatch events from backend using WebSocket manager
 
 ### Database Migrations
-Currently using SQLAlchemy without Alembic. For schema changes:
+Currently using SQLAlchemy with manual migrations. For schema changes:
 1. Update models in `backend/app/models/`
-2. Drop and recreate tables (development) or write manual migration
-3. Consider adding Alembic for production migrations
+2. Development: Drop and recreate tables using `python create_tables.py`
+3. Production: Write manual migration scripts
+4. Future: Consider implementing Alembic for automated migrations
 
 ## API Documentation
 
 FastAPI auto-generates interactive API docs at:
 - Swagger UI: `http://localhost:8000/docs`
 - ReDoc: `http://localhost:8000/redoc`
+
+For detailed API endpoints, see [API_DOCS.md](API_DOCS.md)
+
+## Recent Issues & Solutions
+
+### Like Button State Synchronization (Fixed)
+- **Issue**: Posts in profile grid showed incorrect like state
+- **Solution**: Fetch full post data when clicking posts in profile
+- **File**: `frontend/src/pages/profile/Profile.tsx`
+
+### Mixed Content & CORS (Fixed)
+- **Issue**: HTTPS/HTTP mixed content warnings
+- **Solution**: Use relative paths and protocol-aware WebSocket connections
+- **Files**: `frontend/src/utils/imageUrl.ts`, `frontend/src/contexts/WebSocketContext.tsx`
+
+## Performance Optimizations
+
+### Frontend
+- React Query for efficient data caching
+- Infinite scroll with intersection observer
+- Image lazy loading
+- Code splitting with React.lazy
+
+### Backend
+- Database query optimization with indexes
+- Connection pooling
+- Response caching where appropriate
+- Async request handling
