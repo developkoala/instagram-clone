@@ -15,8 +15,6 @@ const PlaceSearch: React.FC<PlaceSearchProps> = ({ onPlaceSelect, selectedPlace 
   const [error, setError] = useState<string | null>(null);
   const searchRef = useRef<HTMLDivElement>(null);
 
-  // 카카오 API 키
-  const KAKAO_API_KEY = import.meta.env.VITE_KAKAO_API_KEY;
 
   // 외부 클릭 감지
   useEffect(() => {
@@ -30,9 +28,9 @@ const PlaceSearch: React.FC<PlaceSearchProps> = ({ onPlaceSelect, selectedPlace 
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // 장소 검색 API 호출
+  // 장소 검색 API 호출 (백엔드 프록시 사용)
   const searchPlaces = async (query: string) => {
-    if (!query.trim() || !KAKAO_API_KEY) {
+    if (!query.trim()) {
       setSearchResults([]);
       return;
     }
@@ -41,16 +39,9 @@ const PlaceSearch: React.FC<PlaceSearchProps> = ({ onPlaceSelect, selectedPlace 
     setError(null);
 
     try {
-      // FD6: 음식점, CE7: 카페
+      // 백엔드 API를 통해 카카오 API 호출
       const response = await fetch(
-        `https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent(
-          query
-        )}&category_group_code=FD6,CE7&size=10`,
-        {
-          headers: {
-            Authorization: `KakaoAK ${KAKAO_API_KEY}`,
-          },
-        }
+        `/api/places/search?query=${encodeURIComponent(query)}&category_group_code=FD6,CE7&size=10`
       );
 
       if (!response.ok) {
@@ -58,7 +49,7 @@ const PlaceSearch: React.FC<PlaceSearchProps> = ({ onPlaceSelect, selectedPlace 
       }
 
       const data = await response.json();
-      setSearchResults(data.documents);
+      setSearchResults(data.documents || []);
     } catch (err) {
       console.error('Place search error:', err);
       setError('장소 검색에 실패했습니다.');
@@ -223,12 +214,6 @@ const PlaceSearch: React.FC<PlaceSearchProps> = ({ onPlaceSelect, selectedPlace 
         </div>
       )}
 
-      {/* API 키 미설정 경고 */}
-      {!KAKAO_API_KEY && (
-        <p className="mt-2 text-xs text-red-500">
-          ⚠️ 카카오 API 키가 설정되지 않았습니다. .env 파일을 확인해주세요.
-        </p>
-      )}
     </div>
   );
 };
