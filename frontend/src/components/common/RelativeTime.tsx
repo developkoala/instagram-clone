@@ -27,11 +27,10 @@ const RelativeTime: React.FC<RelativeTimeProps> = ({
     try {
       let dateObj: Date;
       if (typeof date === 'string') {
-        // 서버에서 KST로 저장된 시간을 올바르게 파싱
-        // ISO 형식에 타임존 정보가 없으면 KST(+09:00)로 간주
+        // 서버가 UTC로 보내는 경우, UTC로 파싱 후 브라우저가 로컬 시간으로 자동 변환
         if (!date.includes('Z') && !date.includes('+') && !date.includes('-')) {
-          // 2024-01-01T12:00:00 형식을 2024-01-01T12:00:00+09:00로 변환
-          dateObj = new Date(date + '+09:00');
+          // 타임존 정보가 없으면 UTC로 처리
+          dateObj = new Date(date + 'Z');
         } else {
           dateObj = new Date(date);
         }
