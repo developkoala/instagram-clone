@@ -168,13 +168,28 @@ const PostCard: React.FC<PostCardProps> = ({ post, onClick }) => {
             </div>
             {post.location && (
               <div className="flex items-center gap-2">
-                <p className="text-xs text-mukstagram-gray">{post.location}</p>
+                <p className="text-xs text-muksta-gray">
+                  {post.location.includes(' | ') ? (
+                    // 새로운 형식 (장소명 | 주소)
+                    <>
+                      <span className="font-semibold text-muksta-dark">
+                        📍 {post.location.split(' | ')[0]}
+                      </span>
+                      <span className="ml-1 text-gray-500">
+                        {post.location.split(' | ')[1]?.split(' ').slice(0, 3).join(' ')}
+                      </span>
+                    </>
+                  ) : (
+                    // 기존 형식
+                    post.location
+                  )}
+                </p>
                 {/* 음식 카테고리 배지 */}
                 {post.location.includes('카페') && (
-                  <span className="text-xs bg-mukstagram-brown text-white px-2 py-0.5 rounded-full">☕ 카페</span>
+                  <span className="text-xs bg-muksta-brown text-white px-2 py-0.5 rounded-full">☕ 카페</span>
                 )}
                 {(post.location.includes('한식') || post.location.includes('식당')) && (
-                  <span className="text-xs bg-mukstagram-green text-white px-2 py-0.5 rounded-full">🍚 한식</span>
+                  <span className="text-xs bg-muksta-green text-white px-2 py-0.5 rounded-full">🍚 한식</span>
                 )}
                 {post.location.includes('일식') && (
                   <span className="text-xs bg-muksta-red text-white px-2 py-0.5 rounded-full">🍱 일식</span>

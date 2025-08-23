@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom';
 import { X, Image, ArrowLeft, ChevronLeft, ChevronRight, RotateCw } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
+import PlaceSearch from './PlaceSearch';
+import { SelectedPlace } from '../../types/kakao';
 
 interface CreatePostModalProps {
   isOpen: boolean;
@@ -18,6 +20,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
   const [caption, setCaption] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [rotationAngles, setRotationAngles] = useState<number[]>([]);
+  const [selectedPlace, setSelectedPlace] = useState<SelectedPlace | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
 
@@ -178,6 +181,25 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
       formData.append('images', file);
     });
     formData.append('caption', caption);
+    
+    // 장소 정보 추가
+    if (selectedPlace) {
+      // location 필드에 장소명과 주소를 함께 저장
+      const locationText = `${selectedPlace.name} | ${selectedPlace.address}`;
+      formData.append('location', locationText);
+      
+      // 추가 장소 정보를 JSON으로 저장 (선택사항)
+      formData.append('place_data', JSON.stringify({
+        id: selectedPlace.id,
+        name: selectedPlace.name,
+        address: selectedPlace.address,
+        category: selectedPlace.category,
+        latitude: selectedPlace.latitude,
+        longitude: selectedPlace.longitude,
+        phone: selectedPlace.phone,
+        url: selectedPlace.url
+      }));
+    }
 
     createPostMutation.mutate(formData);
   };
@@ -194,6 +216,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
     setCaption('');
     setIsProcessing(false);
     setRotationAngles([]);
+    setSelectedPlace(null);
     
     onClose();
   };
@@ -418,8 +441,8 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
                   <textarea
                     value={caption}
                     onChange={(e) => setCaption(e.target.value)}
-                    placeholder="문구를 작성하세요..."
-                    className="w-full p-2 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
+                    placeholder="맛있는 순간을 공유해주세요..."
+                    className="w-full p-2 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-muksta-orange text-sm md:text-base"
                     rows={3}
                     maxLength={2200}
                   />
@@ -428,9 +451,21 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
                   </p>
                 </div>
 
+                {/* 장소 검색 추가 */}
+                <div>
+                  <h3 className="text-sm font-semibold mb-2 text-muksta-dark">📍 위치 추가</h3>
+                  <PlaceSearch 
+                    onPlaceSelect={setSelectedPlace}
+                    selectedPlace={selectedPlace}
+                  />
+                </div>
+
                 <div className="text-xs text-gray-500 hidden md:block">
                   <p>• 사진 {previewUrls.length}장이 선택되었습니다</p>
                   <p>• 좌우 화살표로 사진을 확인할 수 있습니다</p>
+                  {selectedPlace && (
+                    <p className="text-muksta-orange">• 📍 {selectedPlace.name}</p>
+                  )}
                 </div>
               </div>
             </div>
