@@ -107,8 +107,24 @@ jobs:
           
           # 1. Git Pull
           log_info "📥 최신 코드 가져오는 중..."
+          
+          # .env 파일들을 보존하면서 git pull 수행
+          # frontend/.env 파일 백업
+          if [ -f "$PROJECT_DIR/frontend/.env" ]; then
+              cp $PROJECT_DIR/frontend/.env $PROJECT_DIR/frontend/.env.backup
+          fi
+          
+          # Git stash로 로컬 변경사항 임시 저장
+          git stash
+          
           if git pull origin main; then
               log_success "코드 업데이트 완료"
+              
+              # .env 파일 복원
+              if [ -f "$PROJECT_DIR/frontend/.env.backup" ]; then
+                  mv $PROJECT_DIR/frontend/.env.backup $PROJECT_DIR/frontend/.env
+                  log_info ".env 파일 복원 완료"
+              fi
           else
               log_error "Git pull 실패"
               exit 1
