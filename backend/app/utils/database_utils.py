@@ -298,9 +298,17 @@ def is_post_saved(post_id: str, user_id: str) -> bool:
     return result['count'] > 0 if result else False
 
 def format_datetime(dt: datetime) -> str:
-    """Format datetime for response"""
+    """Format datetime for response with UTC timezone info"""
     if dt:
-        return dt.isoformat() if hasattr(dt, 'isoformat') else str(dt)
+        # UTC 타임존 정보 추가 (없는 경우)
+        if hasattr(dt, 'isoformat'):
+            # naive datetime인 경우 'Z' 추가 (UTC 표시)
+            iso_str = dt.isoformat()
+            # 타임존 정보가 없으면 Z 추가
+            if '+' not in iso_str and 'Z' not in iso_str:
+                return iso_str + 'Z'
+            return iso_str
+        return str(dt)
     return None
 
 def get_follower_count(user_id: str) -> int:
