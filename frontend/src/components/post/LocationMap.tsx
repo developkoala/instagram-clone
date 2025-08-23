@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { X, Maximize2, Minimize2, ExternalLink } from 'lucide-react';
+import { X, Maximize2, Minimize2, ExternalLink, MapPin } from 'lucide-react';
 
 interface LocationMapProps {
   location: string;
@@ -10,6 +10,7 @@ const LocationMap: React.FC<LocationMapProps> = ({ location, className = '' }) =
   const mapRef = useRef<HTMLDivElement>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [mapInstance, setMapInstance] = useState<any>(null);
+  const [mapError, setMapError] = useState(false);
   const [placeInfo, setPlaceInfo] = useState<{
     name: string;
     address: string;
@@ -28,18 +29,26 @@ const LocationMap: React.FC<LocationMapProps> = ({ location, className = '' }) =
   };
 
   useEffect(() => {
-    if (!mapRef.current) return;
+    const { name, address } = parseLocation(location);
     
-    // 카카오맵 API가 로드되지 않았으면 대기
+    // 카카오맵 API가 로드되지 않았거나 에러가 있으면 폴백 처리
     if (!window.kakao || !window.kakao.maps) {
-      console.warn('Kakao Maps API is not loaded yet');
+      console.warn('Kakao Maps API is not loaded, using fallback');
+      setMapError(true);
+      setPlaceInfo({
+        name,
+        address,
+        lat: 37.5665, // 서울 기본 좌표
+        lng: 126.9780,
+      });
       return;
     }
 
-    const { name, address } = parseLocation(location);
+    if (!mapRef.current) return;
 
     // 카카오맵 초기화
-    window.kakao.maps.load(() => {
+    try {
+      window.kakao.maps.load(() => {
       const geocoder = new window.kakao.maps.services.Geocoder();
 
       // 주소로 좌표 검색
@@ -110,6 +119,16 @@ const LocationMap: React.FC<LocationMapProps> = ({ location, className = '' }) =
         }
       });
     });
+    } catch (error) {
+      console.error('Failed to load Kakao Maps:', error);
+      setMapError(true);
+      setPlaceInfo({
+        name,
+        address,
+        lat: 37.5665,
+        lng: 126.9780,
+      });
+    }
   }, [location, isExpanded]);
 
   // 맵 크기 변경 시 재조정
@@ -128,6 +147,39 @@ const LocationMap: React.FC<LocationMapProps> = ({ location, className = '' }) =
       window.open(url, '_blank');
     }
   };
+
+  // 폴백 UI (맵 로드 실패 시)
+  if (mapError || !window.kakao) {
+    const { name, address } = parseLocation(location);
+    
+    return (
+      <div className={`${className}`}>
+        <div 
+          className="w-full p-4 bg-gray-50 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
+          onClick={() => {
+            const searchQuery = encodeURIComponent(location);
+            window.open(`https://map.kakao.com/link/search/${searchQuery}`, '_blank');
+          }}
+        >
+          <div className="flex items-start gap-3">
+            <div className="p-2 bg-muksta-orange/10 rounded-lg">
+              <MapPin className="text-muksta-orange" size={20} />
+            </div>
+            <div className="flex-1">
+              <p className="font-medium text-sm">{name}</p>
+              {name !== address && (
+                <p className="text-xs text-gray-600 mt-1">{address}</p>
+              )}
+              <p className="text-xs text-muksta-orange mt-2 flex items-center gap-1">
+                <ExternalLink size={12} />
+                카카오맵에서 보기
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
