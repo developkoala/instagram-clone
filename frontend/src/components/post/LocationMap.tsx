@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { X, Maximize2, Minimize2, ExternalLink, MapPin } from 'lucide-react';
+import { X, Maximize2, ExternalLink, MapPin } from 'lucide-react';
 
 interface LocationMapProps {
   location: string;
