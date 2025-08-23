@@ -17,6 +17,7 @@ muksta/
 ├── ecosystem.config.js    # PM2 프로덕션 설정
 └── 문서/
     ├── README.md          # 프로젝트 개요 (현재 파일)
+    ├── ENV_SETUP.md       # ⚠️ 환경 설정 규칙 (필독!)
     ├── CLAUDE.md          # Claude Code AI 가이드
     ├── DEPLOYMENT.md      # 배포 가이드
     ├── API_DOCS.md        # API 명세서
@@ -53,6 +54,30 @@ npm run dev
 - Python 3.8+ (권장: 3.11+)
 - npm 8+ 또는 yarn
 - Git
+
+## ⚠️ 환경 설정 (중요!)
+
+**반드시 [ENV_SETUP.md](./ENV_SETUP.md) 문서를 읽고 환경 설정 규칙을 준수하세요!**
+
+### 빠른 설정 가이드
+```bash
+# Backend 환경 설정 (로컬 개발)
+cd backend
+cp .env.example .env.local
+# SQLite 사용: DATABASE_URL=sqlite:///./instagram_clone.db
+
+# Frontend 환경 설정
+cd ../frontend
+cp .env.example .env
+# 필요한 API 키 설정
+```
+
+### ⛔ 절대 금지 사항
+- ❌ 서버의 `backend/.env` 파일 수정 금지
+- ❌ 서버 DATABASE_URL을 SQLite로 변경 금지
+- ❌ `.env` 파일을 Git에 커밋 금지
+
+자세한 내용은 **[ENV_SETUP.md](./ENV_SETUP.md)** 참조
 
 ## ✨ 주요 기능
 
