@@ -19,9 +19,11 @@ const LocationMap: React.FC<LocationMapProps> = ({ location, className = '' }) =
 
   const { name, address } = parseLocation(location);
 
-  // 카카오맵에서 검색
+  // 카카오맵에서 검색 (주소만 사용)
   const openInKakaoMap = () => {
-    const searchQuery = encodeURIComponent(location);
+    // "장소명 | 주소" 형식인 경우 주소만 추출
+    const searchText = address !== name ? address : location;
+    const searchQuery = encodeURIComponent(searchText);
     window.open(`https://map.kakao.com/link/search/${searchQuery}`, '_blank');
   };
 
