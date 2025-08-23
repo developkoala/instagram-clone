@@ -12,3 +12,4 @@ sqlalchemy
 pymysql
 psycopg2-binary
 pytz
+httpx
