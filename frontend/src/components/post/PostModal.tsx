@@ -8,6 +8,7 @@ import { useToast } from '../../hooks/useToast';
 import LoginPromptModal from '../common/LoginPromptModal';
 import { getImageUrl } from '../../utils/imageUrl';
 import { useNavigate } from 'react-router-dom';
+import LocationMap from './LocationMap';
 
 interface Comment {
   id: string;
@@ -346,7 +347,10 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
                     {post.user.username}
                   </p>
                   {post.location && (
-                    <p className="text-xs text-gray-500">{post.location}</p>
+                    <div className="mt-2">
+                      <p className="text-xs text-gray-500 mb-2">{post.location}</p>
+                      <LocationMap location={post.location} className="mt-2" />
+                    </div>
                   )}
                 </div>
               </div>
@@ -622,7 +626,10 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
                   {post.user.username}
                 </p>
                 {post.location && (
-                  <p className="text-xs text-gray-500">{post.location}</p>
+                  <div className="mt-2">
+                    <p className="text-xs text-gray-500 mb-2">{post.location}</p>
+                    <LocationMap location={post.location} className="mt-2" />
+                  </div>
                 )}
               </div>
             </div>
