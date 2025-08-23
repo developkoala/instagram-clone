@@ -41,7 +41,7 @@ const PlaceSearch: React.FC<PlaceSearchProps> = ({ onPlaceSelect, selectedPlace 
     try {
       // 백엔드 API를 통해 카카오 API 호출
       const response = await fetch(
-        `/api/places/search?query=${encodeURIComponent(query)}&category_group_code=FD6,CE7&size=10`
+        `/api/places/search?query=${encodeURIComponent(query)}&size=15`
       );
 
       if (!response.ok) {
