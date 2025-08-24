@@ -12,6 +12,7 @@ from app.api import auth, users, posts, public, notifications, websocket, messag
 from app.api import admin
 from app.api import cmt as comments
 from app.api import places
+from app.api import rss
 
 # Import settings
 from app.config import get_settings
@@ -53,6 +54,7 @@ app.include_router(messages.router)
 app.include_router(websocket.router)
 app.include_router(admin.router)
 app.include_router(places.router)
+app.include_router(rss.router)
 
 @app.get("/")
 async def root():
