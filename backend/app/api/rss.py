@@ -36,12 +36,16 @@ def generate_rss_feed(posts: list, base_url: str = "https://muksta.com") -> str:
     
     # 각 게시물을 RSS 아이템으로 변환
     for post in posts:
-        # 이미지 URL 생성
+        # 이미지 URL 생성 (네이버 요구사항: 같은 도메인의 이미지만 사용)
         image_url = ""
         if post.get('image_url'):
             if post['image_url'].startswith('http'):
-                image_url = post['image_url']
+                # 외부 도메인 이미지는 제외 (네이버 RSS 요구사항)
+                if base_url in post['image_url'] or 'muksta.com' in post['image_url']:
+                    image_url = post['image_url']
+                # 외부 이미지는 포함하지 않음
             else:
+                # 상대 경로는 절대 경로로 변환
                 image_url = f"{base_url}{post['image_url']}"
         
         # 제목 생성 (캡션의 첫 50자 또는 사용자명의 게시물)
