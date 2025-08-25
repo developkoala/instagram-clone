@@ -26,7 +26,7 @@ def generate_rss_feed(posts: list, base_url: str = "https://muksta.com") -> str:
         <copyright>Copyright © 2025 Mukstagram. All rights reserved.</copyright>
         <lastBuildDate>{datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S +0000')}</lastBuildDate>
         <generator>Mukstagram RSS Generator</generator>
-        <atom:link href="{base_url}/api/rss/feed.xml" rel="self" type="application/rss+xml" />
+        <atom:link href="{base_url}/rss/rss.xml" rel="self" type="application/rss+xml" />
         <image>
             <url>{base_url}/logo.png</url>
             <title>먹스타그램</title>
@@ -97,7 +97,8 @@ def generate_rss_feed(posts: list, base_url: str = "https://muksta.com") -> str:
     
     return rss_feed
 
-@router.get("/feed.xml")
+@router.get("/rss.xml")  # 표준 RSS 경로
+@router.get("/feed.xml")  # 이전 경로도 호환성을 위해 유지
 @router.get("/")
 async def get_rss_feed(
     limit: int = Query(20, ge=1, le=100, description="피드 아이템 개수"),
