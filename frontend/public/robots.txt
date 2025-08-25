@@ -43,4 +43,7 @@ Disallow: /admin/
 Crawl-delay: 1
 
 # 사이트맵 위치
-Sitemap: https://muksta.com/sitemap.xml
+Sitemap: https://muksta.com/rss/sitemap.xml
+
+# 파비콘 위치 (구글 크롤러용)
+# Google은 favicon.ico를 자동으로 찾지만 명시하면 더 좋음
