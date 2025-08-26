@@ -56,6 +56,26 @@ app.include_router(admin.router)
 app.include_router(places.router)
 app.include_router(rss.router)
 
+# RSS 피드를 루트 레벨에서도 제공 (표준 경로)
+from fastapi import Response
+@app.get("/rss.xml")
+async def root_rss_feed():
+    """루트 레벨 RSS 피드 (표준 경로)"""
+    from app.api.rss import get_rss_feed
+    return await get_rss_feed()
+
+@app.get("/feed.xml")
+async def root_feed_xml():
+    """루트 레벨 피드 (호환성)"""
+    from app.api.rss import get_rss_feed
+    return await get_rss_feed()
+
+@app.get("/sitemap.xml")
+async def root_sitemap():
+    """루트 레벨 사이트맵"""
+    from app.api.rss import get_sitemap
+    return await get_sitemap()
+
 @app.get("/")
 async def root():
     """루트 엔드포인트"""

@@ -21,6 +21,23 @@ export default defineConfig({
         target: 'ws://127.0.0.1:8000',
         ws: true,
         changeOrigin: true,
+      },
+      '/rss': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/rss.xml': {
+        target: 'http://127.0.0.1:8000/rss',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => '/rss.xml'
+      },
+      '/feed.xml': {
+        target: 'http://127.0.0.1:8000/rss',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => '/feed.xml'
       }
     }
   },
