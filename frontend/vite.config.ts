@@ -31,13 +31,13 @@ export default defineConfig({
         target: 'http://127.0.0.1:8000/rss',
         changeOrigin: true,
         secure: false,
-        rewrite: (path) => '/rss.xml'
+        rewrite: () => '/rss.xml'
       },
       '/feed.xml': {
         target: 'http://127.0.0.1:8000/rss',
         changeOrigin: true,
         secure: false,
-        rewrite: (path) => '/feed.xml'
+        rewrite: () => '/feed.xml'
       }
     }
   },
